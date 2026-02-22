@@ -1,0 +1,133 @@
+.checkin-page {
+    padding: 7rem 0 4rem;
+}
+
+.checkin-event-select {
+    padding: 1.5rem;
+    border-radius: var(--r-lg);
+    margin-bottom: 2rem;
+}
+
+.checkin-stats {
+    display: grid;
+    grid-template-columns: repeat(4, 1fr);
+    gap: 1.25rem;
+    margin-bottom: 1.5rem;
+}
+
+.checkin-stat-card {
+    background: var(--bg-card);
+    border: 1px solid var(--border);
+    border-radius: var(--r-lg);
+    padding: 1.5rem;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: 0.5rem;
+    text-align: center;
+    transition: var(--t);
+}
+
+.checkin-stat-card:hover {
+    border-color: var(--border-hover);
+}
+
+.checkin-stat-icon {
+    width: 52px;
+    height: 52px;
+    border-radius: 50%;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+}
+
+.checkin-stat-value {
+    font-size: 2rem;
+    font-weight: 900;
+    font-family: 'Outfit', sans-serif;
+}
+
+.checkin-stat-label {
+    font-size: 0.8rem;
+    color: var(--text-2);
+}
+
+.attendance-progress {
+    padding: 1.5rem;
+    border-radius: var(--r-lg);
+    margin-bottom: 1.5rem;
+}
+
+.scan-section {
+    padding: 2rem;
+    border-radius: var(--r-lg);
+    margin-bottom: 1.5rem;
+}
+
+.scan-section h3 {
+    margin-bottom: 0.5rem;
+}
+
+.scan-form {
+    display: flex;
+    gap: 0.75rem;
+    margin-top: 0.75rem;
+}
+
+.scan-input {
+    flex: 1;
+}
+
+.recent-checkins {
+    padding: 1.5rem;
+    border-radius: var(--r-lg);
+}
+
+.recent-checkins h3 {
+    margin-bottom: 1.25rem;
+}
+
+.checkins-list {
+    display: flex;
+    flex-direction: column;
+    gap: 0.75rem;
+}
+
+.checkin-item {
+    display: flex;
+    align-items: center;
+    gap: 1rem;
+    padding: 0.75rem;
+    background: var(--bg-card);
+    border-radius: var(--r-md);
+}
+
+.checkin-info {
+    flex: 1;
+}
+
+.checkin-name {
+    font-weight: 600;
+    font-size: 0.9rem;
+}
+
+.checkin-time {
+    font-size: 0.75rem;
+    color: var(--text-3);
+}
+
+@media (max-width: 768px) {
+    .checkin-stats {
+        grid-template-columns: repeat(2, 1fr);
+    }
+
+    .scan-form {
+        flex-direction: column;
+    }
+}
+
+@media (max-width: 480px) {
+    .checkin-stats {
+        grid-template-columns: repeat(2, 1fr);
+    }
+}

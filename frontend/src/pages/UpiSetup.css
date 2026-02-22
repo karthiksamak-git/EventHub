@@ -1,0 +1,96 @@
+.upi-setup-page {
+    padding: 7rem 0 4rem;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    min-height: 100vh;
+}
+
+.upi-setup-card {
+    max-width: 560px;
+    margin: 0 auto;
+    padding: 2.5rem;
+    border-radius: var(--r-xl);
+    text-align: center;
+}
+
+.upi-setup-icon {
+    width: 64px;
+    height: 64px;
+    background: rgba(108, 99, 255, 0.12);
+    border: 1px solid rgba(108, 99, 255, 0.25);
+    border-radius: var(--r-xl);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    margin: 0 auto 1.25rem;
+    color: var(--primary);
+}
+
+.upi-setup-card h1 {
+    font-size: 1.6rem;
+    margin-bottom: 0.75rem;
+}
+
+.upi-setup-desc {
+    color: var(--text-2);
+    font-size: 0.9rem;
+    line-height: 1.7;
+    margin-bottom: 2rem;
+    max-width: 440px;
+    margin-left: auto;
+    margin-right: auto;
+}
+
+.upi-form {
+    text-align: left;
+}
+
+.form-hint {
+    font-size: 0.78rem;
+    color: var(--text-3);
+    margin-top: 0.4rem;
+}
+
+.form-hint code {
+    background: var(--bg-card);
+    padding: 0.1rem 0.35rem;
+    border-radius: 4px;
+    font-size: 0.78rem;
+    color: var(--accent);
+}
+
+.upi-how-it-works {
+    background: var(--bg-card);
+    border: 1px solid var(--border);
+    border-radius: var(--r-lg);
+    padding: 1.25rem;
+    margin: 1.5rem 0;
+}
+
+.upi-how-it-works h4 {
+    font-size: 0.9rem;
+    margin-bottom: 0.75rem;
+    color: var(--text-2);
+}
+
+.upi-how-it-works ul {
+    list-style: none;
+    display: flex;
+    flex-direction: column;
+    gap: 0.55rem;
+}
+
+.upi-how-it-works li {
+    display: flex;
+    align-items: flex-start;
+    gap: 0.6rem;
+    font-size: 0.84rem;
+    color: var(--text-2);
+}
+
+.upi-how-it-works li svg {
+    color: var(--accent);
+    flex-shrink: 0;
+    margin-top: 2px;
+}
