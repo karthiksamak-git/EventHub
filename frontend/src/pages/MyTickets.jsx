@@ -3,16 +3,23 @@ import { Link } from 'react-router-dom';
 import { ticketsAPI, eventsAPI } from '../services/api';
 import { format } from 'date-fns';
 import toast from 'react-hot-toast';
-import { FiCalendar, FiClock, FiMapPin, FiWifi, FiAlertCircle, FiX } from 'react-icons/fi';
+import { FiCalendar, FiClock, FiMapPin, FiWifi, FiAlertCircle, FiX, FiClock as FiHourglass } from 'react-icons/fi';
+import { MdHourglassTop } from 'react-icons/md';
 import PaymentModal from '../components/PaymentModal';
 import './MyTickets.css';
 
 const STATUS_LABELS = {
     pending_payment: 'Awaiting Payment',
+    submitted: 'Awaiting Review',
     active: 'Confirmed',
     cancelled: 'Cancelled',
     used: 'Used',
     expired: 'Expired'
+};
+
+const getDisplayStatus = (ticket) => {
+    if (ticket.status === 'pending_payment' && ticket.paymentStatus === 'submitted') return 'submitted';
+    return ticket.status;
 };
 
 const MyTickets = () => {
@@ -95,7 +102,7 @@ const MyTickets = () => {
                                             </div>
                                         </div>
                                         <div className="ticket-status-badge">
-                                            <span className={`status-badge status-${ticket.status}`}>{STATUS_LABELS[ticket.status] || ticket.status}</span>
+                                            <span className={`status-badge status-${getDisplayStatus(ticket)}`}>{STATUS_LABELS[getDisplayStatus(ticket)] || ticket.status}</span>
                                         </div>
                                     </div>
 
@@ -110,8 +117,13 @@ const MyTickets = () => {
                                         </div>
 
                                         <div className="ticket-actions">
-                                            {ticket.status === 'pending_payment' && (
+                                            {ticket.status === 'pending_payment' && ticket.paymentStatus !== 'submitted' && (
                                                 <button className="btn btn-primary btn-sm" onClick={() => handlePayNow(ticket)}>Complete Payment</button>
+                                            )}
+                                            {ticket.status === 'pending_payment' && ticket.paymentStatus === 'submitted' && (
+                                                <span className="pending-note awaiting-review">
+                                                    <MdHourglassTop size={13} /> Awaiting organizer review
+                                                </span>
                                             )}
                                             {ticket.status === 'active' && ticket.qrCode && (
                                                 <button className="btn btn-secondary btn-sm" onClick={() => setQrTicket(ticket)}>View QR Code</button>
@@ -119,7 +131,7 @@ const MyTickets = () => {
                                             {ticket.status === 'active' && !ticket.qrCode && (
                                                 <span className="pending-note"><FiAlertCircle size={12} /> Verification pending</span>
                                             )}
-                                            {(ticket.status === 'pending_payment' || ticket.status === 'active') && (
+                                            {ticket.status === 'pending_payment' && ticket.paymentStatus !== 'submitted' && (
                                                 <button className="btn btn-danger btn-sm" onClick={() => handleCancel(ticket._id)}><FiX size={13} /></button>
                                             )}
                                         </div>
@@ -131,7 +143,7 @@ const MyTickets = () => {
                 )}
             </div>
 
-            {}
+            { }
             {qrTicket && (
                 <div className="modal-overlay" onClick={() => setQrTicket(null)}>
                     <div className="modal" style={{ maxWidth: '400px', textAlign: 'center' }} onClick={e => e.stopPropagation()}>
@@ -152,7 +164,7 @@ const MyTickets = () => {
                 </div>
             )}
 
-            {}
+            { }
             {payTicket && payEvent && (
                 <PaymentModal
                     ticket={payTicket}

@@ -7,7 +7,7 @@ import toast from 'react-hot-toast';
 import {
     FiCalendar, FiMapPin, FiClock, FiUsers, FiWifi, FiGlobe,
     FiHeart, FiShare2, FiEdit, FiMessageCircle, FiArrowLeft,
-    FiCheck, FiX, FiAlertCircle
+    FiCheck, FiX, FiAlertCircle, FiTrash2
 } from 'react-icons/fi';
 import './EventDetail.css';
 import PaymentModal from '../components/PaymentModal';
@@ -27,7 +27,21 @@ const EventDetail = () => {
     const [selectedTicketType, setSelectedTicketType] = useState(null);
     const [quantity, setQuantity] = useState(1);
     const [booking, setBooking] = useState(false);
-    const [bookedTicket, setBookedTicket] = useState(null); // after booking — payment pending
+    const [bookedTicket, setBookedTicket] = useState(null);
+    const [deleting, setDeleting] = useState(false);
+
+    const handleDelete = async () => {
+        if (!window.confirm('Delete this event? This cannot be undone.')) return;
+        setDeleting(true);
+        try {
+            await eventsAPI.delete(id);
+            toast.success('Event deleted.');
+            navigate('/events');
+        } catch (err) {
+            toast.error(err.response?.data?.message || 'Failed to delete event.');
+            setDeleting(false);
+        }
+    };
 
     useEffect(() => {
         eventsAPI.getOne(id)
@@ -109,7 +123,7 @@ const EventDetail = () => {
 
     return (
         <div className="event-detail-page">
-            {}
+            { }
             <div className="event-hero">
                 <div className="event-hero-bg" style={{ background: `linear-gradient(135deg, rgba(108,99,255,0.2), rgba(255,107,107,0.15))` }} />
                 <div className="container">
@@ -142,7 +156,7 @@ const EventDetail = () => {
                                 )}
                             </div>
 
-                            {}
+                            { }
                             <div className="event-organizer-row">
                                 <div className="avatar-placeholder sm">{(event.organizer?.organizationName || event.organizer?.name || 'O')[0]}</div>
                                 <div>
@@ -156,7 +170,7 @@ const EventDetail = () => {
                             </div>
                         </div>
 
-                        {}
+                        { }
                         <div className="event-booking-card glass">
                             <div className="booking-price-range">
                                 {event.ticketTypes?.length > 0 && (
@@ -184,9 +198,19 @@ const EventDetail = () => {
 
                             <div className="booking-actions">
                                 {isOrganizer ? (
-                                    <Link to={`/events/${id}/edit`} className="btn btn-primary btn-lg w-full">
-                                        <FiEdit size={16} /> Edit Event
-                                    </Link>
+                                    <div style={{ display: 'flex', gap: '0.75rem' }}>
+                                        <Link to={`/events/${id}/edit`} className="btn btn-primary btn-lg" style={{ flex: 1 }}>
+                                            <FiEdit size={16} /> Edit Event
+                                        </Link>
+                                        <button
+                                            className="btn btn-danger btn-lg"
+                                            onClick={handleDelete}
+                                            disabled={deleting}
+                                            title="Delete Event"
+                                        >
+                                            {deleting ? '...' : <FiTrash2 size={16} />}
+                                        </button>
+                                    </div>
                                 ) : event.status !== 'published' ? (
                                     <div className="booking-unavailable">Tickets not available</div>
                                 ) : availableTickets === 0 ? (
@@ -220,13 +244,13 @@ const EventDetail = () => {
 
             <div className="container event-body">
                 <div className="event-main">
-                    {}
+                    { }
                     <section className="event-section">
                         <h2>About This Event</h2>
                         <p className="event-description">{event.description}</p>
                     </section>
 
-                    {}
+                    { }
                     {event.requirements && (
                         <section className="event-section">
                             <h2>Requirements & Prerequisites</h2>
@@ -234,7 +258,7 @@ const EventDetail = () => {
                         </section>
                     )}
 
-                    {}
+                    { }
                     <section className="event-section">
                         <h2>Ticket Options</h2>
                         <div className="ticket-types-list">
@@ -253,7 +277,7 @@ const EventDetail = () => {
                         </div>
                     </section>
 
-                    {}
+                    { }
                     {event.isOnline && event.onlineLink && isAuth && (
                         <section className="event-section">
                             <h2>Event Access</h2>
@@ -267,7 +291,7 @@ const EventDetail = () => {
                         </section>
                     )}
 
-                    {}
+                    { }
                     {!event.isOnline && (
                         <section className="event-section">
                             <h2>Location</h2>
@@ -284,7 +308,7 @@ const EventDetail = () => {
                         </section>
                     )}
 
-                    {}
+                    { }
                     <section className="event-section">
                         <h2>Discussion ({event.comments?.length || 0})</h2>
                         {isAuth ? (
@@ -374,7 +398,7 @@ const EventDetail = () => {
                 </div>
             )}
 
-            {}
+            { }
             {bookedTicket && bookedTicket.status === 'pending_payment' && (
                 <PaymentModal
                     ticket={bookedTicket}

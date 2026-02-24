@@ -143,6 +143,17 @@
     color: var(--text-3);
 }
 
+.status-badge.status-submitted {
+    background: rgba(255, 165, 0, 0.15);
+    color: #f59e0b;
+}
+
+.pending-note.awaiting-review {
+    color: #f59e0b;
+    font-weight: 600;
+}
+
+
 .ticket-divider {
     height: 1px;
     background: var(--border);
