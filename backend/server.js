@@ -31,6 +31,24 @@ app.use(express.json({ limit: '10mb' }));
 app.use(express.urlencoded({ extended: true, limit: '10mb' }));
 app.use('/uploads', express.static(path.join(__dirname, 'uploads')));
 
+const connectDB = async () => {
+  if (mongoose.connection.readyState >= 1) return;
+  return mongoose.connect(process.env.MONGO_URI, {
+    serverSelectionTimeoutMS: 10000,
+    socketTimeoutMS: 45000,
+  });
+};
+
+app.use(async (req, res, next) => {
+  try {
+    await connectDB();
+    next();
+  } catch (err) {
+    console.error('DB connection failed:', err.message);
+    res.status(500).json({ success: false, message: 'Database connection failed. Please try again.' });
+  }
+});
+
 app.use('/api/auth', require('./routes/auth'));
 app.use('/api/events', require('./routes/events'));
 app.use('/api/tickets', require('./routes/tickets'));
@@ -50,23 +68,11 @@ app.use((err, req, res, next) => {
   res.status(err.status || 500).json({ success: false, message: err.message || 'Internal server error.' });
 });
 
-let isConnected = false;
-const connectDB = async () => {
-  if (isConnected) return;
-  await mongoose.connect(process.env.MONGO_URI);
-  isConnected = true;
-};
-
 if (process.env.NODE_ENV !== 'production') {
-  connectDB().then(() => {
-    const PORT = process.env.PORT || 5000;
-    app.listen(PORT, () => console.log(`EventHub API running on port ${PORT}`));
-  }).catch(err => {
-    console.error('MongoDB connection error:', err.message);
-    process.exit(1);
-  });
-} else {
-  connectDB().catch(err => console.error('MongoDB connection error:', err.message));
+  const PORT = process.env.PORT || 5000;
+  connectDB()
+    .then(() => app.listen(PORT, () => console.log(`EventHub API running on port ${PORT}`)))
+    .catch(err => { console.error('MongoDB connection error:', err.message); process.exit(1); });
 }
 
 module.exports = app;
