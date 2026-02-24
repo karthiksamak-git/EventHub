@@ -30,7 +30,7 @@ exports.bookTicket = async (req, res) => {
         const existingTicket = await Ticket.findOne({
             event: eventId,
             attendee: req.user.id,
-            ticketType: { name: ticketTypeName },
+            'ticketType.name': ticketTypeName,
             status: { $in: ['pending_payment', 'active', 'used'] }
         });
         if (existingTicket)
@@ -119,6 +119,8 @@ exports.submitPayment = async (req, res) => {
             return res.status(400).json({ success: false, message: 'This ticket is not awaiting payment.' });
         if (ticket.totalAmount === 0)
             return res.status(400).json({ success: false, message: 'This is a free ticket.' });
+        if (ticket.paymentStatus === 'confirmed')
+            return res.status(400).json({ success: false, message: 'Payment already confirmed.' });
 
         ticket.upiTransactionRef = upiTransactionRef.trim();
         ticket.paymentStatus = 'submitted';
@@ -143,8 +145,11 @@ exports.confirmPayment = async (req, res) => {
 
         if (!ticket) return res.status(404).json({ success: false, message: 'Ticket not found.' });
 
-        const event = await Event.findById(ticket.event._id);
-        if (event.organizer.toString() !== req.user.id && req.user.role !== 'admin')
+        const organizerId = ticket.event.organizer?._id
+            ? ticket.event.organizer._id.toString()
+            : ticket.event.organizer.toString();
+
+        if (organizerId !== req.user.id && req.user.role !== 'admin')
             return res.status(403).json({ success: false, message: 'Not authorized.' });
 
         if (ticket.paymentStatus === 'confirmed')
@@ -186,15 +191,20 @@ exports.rejectPayment = async (req, res) => {
             .populate('event', 'organizer');
         if (!ticket) return res.status(404).json({ success: false, message: 'Ticket not found.' });
 
-        const event = await Event.findById(ticket.event._id);
-        if (event.organizer.toString() !== req.user.id && req.user.role !== 'admin')
+        const organizerId = ticket.event.organizer?._id
+            ? ticket.event.organizer._id.toString()
+            : ticket.event.organizer.toString();
+
+        if (organizerId !== req.user.id && req.user.role !== 'admin')
             return res.status(403).json({ success: false, message: 'Not authorized.' });
 
         ticket.paymentStatus = 'failed';
-        ticket.status = 'cancelled';
+        ticket.status = 'pending_payment';
+        ticket.upiTransactionRef = '';
+        ticket.paymentSubmittedAt = null;
         await ticket.save();
 
-        res.json({ success: true, message: 'Payment rejected. Ticket has been cancelled.' });
+        res.json({ success: true, message: 'Payment rejected. Attendee can resubmit their reference.' });
     } catch (err) {
         res.status(500).json({ success: false, message: err.message });
     }

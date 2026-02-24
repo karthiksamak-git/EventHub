@@ -1,14 +1,13 @@
 import { useState, useEffect } from 'react';
 import { checkinAPI, eventsAPI } from '../services/api';
-import { useAuth } from '../context/AuthContext';
 import { useSearchParams } from 'react-router-dom';
 import toast from 'react-hot-toast';
-import { FiZap, FiUsers, FiCheckCircle, FiClock } from 'react-icons/fi';
+import { FiZap, FiUsers, FiCheckCircle, FiClock, FiSearch } from 'react-icons/fi';
+import { MdQrCodeScanner } from 'react-icons/md';
 import { format } from 'date-fns';
 import './CheckIn.css';
 
 const CheckIn = () => {
-    const { user } = useAuth();
     const [searchParams] = useSearchParams();
     const [myEvents, setMyEvents] = useState([]);
     const [selectedEvent, setSelectedEvent] = useState(searchParams.get('event') || '');
@@ -22,9 +21,7 @@ const CheckIn = () => {
     }, []);
 
     useEffect(() => {
-        if (selectedEvent) {
-            fetchStats();
-        }
+        if (selectedEvent) fetchStats();
     }, [selectedEvent]);
 
     const fetchStats = async () => {
@@ -38,18 +35,20 @@ const CheckIn = () => {
 
     const handleScan = async (e) => {
         e.preventDefault();
-        if (!scanInput.trim() || !selectedEvent) { toast.error('Enter a ticket ID'); return; }
+        if (!scanInput.trim() || !selectedEvent) { toast.error('Enter a ticket ID or scan a QR code.'); return; }
         setScanning(true);
         try {
             let ticketId = scanInput.trim();
-
-            try { const parsed = JSON.parse(ticketId); ticketId = parsed.ticketId || ticketId; } catch { }
+            try {
+                const parsed = JSON.parse(ticketId);
+                ticketId = parsed.ticketId || ticketId;
+            } catch { }
             const res = await checkinAPI.scan({ ticketId, eventId: selectedEvent });
             toast.success(res.data.message);
             setScanInput('');
             fetchStats();
         } catch (err) {
-            toast.error(err.response?.data?.message || 'Check-in failed');
+            toast.error(err.response?.data?.message || 'Check-in failed. Verify the ticket ID.');
         }
         setScanning(false);
     };
@@ -58,11 +57,10 @@ const CheckIn = () => {
         <div className="checkin-page">
             <div className="container">
                 <div className="page-header">
-                    <h1>📱 QR <span className="gradient-text">Check-In</span></h1>
+                    <h1>QR <span className="gradient-text">Check-In</span></h1>
                     <p>Manage event check-ins in real-time</p>
                 </div>
 
-                {}
                 <div className="checkin-event-select glass">
                     <label className="form-label">Select Your Event</label>
                     <select className="form-select" value={selectedEvent} onChange={e => setSelectedEvent(e.target.value)}>
@@ -73,7 +71,6 @@ const CheckIn = () => {
 
                 {selectedEvent && (
                     <>
-                        {/* Stats */}
                         {stats && (
                             <div className="checkin-stats">
                                 <div className="checkin-stat-card">
@@ -98,6 +95,7 @@ const CheckIn = () => {
                                 </div>
                             </div>
                         )}
+
                         {stats && (
                             <div className="attendance-progress glass">
                                 <div style={{ display: 'flex', justifyContent: 'space-between', marginBottom: '0.75rem' }}>
@@ -110,31 +108,50 @@ const CheckIn = () => {
                             </div>
                         )}
 
-                        {}
                         <div className="scan-section glass">
-                            <h3>🔍 Manual Check-In</h3>
-                            <p style={{ color: 'var(--text-2)', fontSize: '0.9rem', marginBottom: '1rem' }}>Enter ticket ID or paste QR code data to check in an attendee</p>
+                            <div className="scan-header">
+                                <MdQrCodeScanner size={22} />
+                                <h3>Manual Check-In</h3>
+                            </div>
+                            <p style={{ color: 'var(--text-2)', fontSize: '0.875rem', marginBottom: '1.25rem' }}>
+                                Enter a Ticket ID or paste the raw QR code data to check in an attendee manually.
+                            </p>
                             <form onSubmit={handleScan} className="scan-form">
-                                <input className="form-input scan-input" placeholder="Enter Ticket ID..." value={scanInput} onChange={e => setScanInput(e.target.value)} />
+                                <div className="scan-input-wrap">
+                                    <FiSearch className="scan-input-icon" />
+                                    <input
+                                        className="form-input scan-input"
+                                        placeholder="Ticket ID or QR code data..."
+                                        value={scanInput}
+                                        onChange={e => setScanInput(e.target.value)}
+                                        autoFocus
+                                    />
+                                </div>
                                 <button type="submit" className="btn btn-primary" disabled={scanning || !scanInput.trim()}>
-                                    {scanning ? '⏳ Checking...' : '✓ Check In'}
+                                    {scanning ? 'Processing...' : 'Check In'}
                                 </button>
                             </form>
                         </div>
 
-                        {}
                         {recentCheckins.length > 0 && (
                             <div className="recent-checkins glass">
                                 <h3>Recent Check-ins</h3>
                                 <div className="checkins-list">
                                     {recentCheckins.map((t, i) => (
                                         <div key={i} className="checkin-item">
-                                            <div className="checkin-avatar avatar-placeholder" style={{ width: 38, height: 38, fontSize: '0.9rem' }}>{t.attendee?.name?.[0]}</div>
+                                            <div className="avatar-placeholder" style={{ width: 38, height: 38, fontSize: '0.9rem', flexShrink: 0 }}>
+                                                {t.attendee?.name?.[0]?.toUpperCase()}
+                                            </div>
                                             <div className="checkin-info">
                                                 <div className="checkin-name">{t.attendee?.name}</div>
+                                                <div className="checkin-meta">
+                                                    {t.attendee?.email} &middot; {t.ticketType?.name}
+                                                </div>
+                                            </div>
+                                            <div className="checkin-time-col">
+                                                <span className="badge badge-success">Checked In</span>
                                                 <div className="checkin-time">{t.checkedInAt ? format(new Date(t.checkedInAt), 'h:mm a') : 'Just now'}</div>
                                             </div>
-                                            <span className="badge badge-success">✓ Checked In</span>
                                         </div>
                                     ))}
                                 </div>
@@ -144,10 +161,10 @@ const CheckIn = () => {
                 )}
 
                 {!selectedEvent && (
-                    <div className="empty-state">
-                        <div className="icon">📱</div>
+                    <div className="empty-state" style={{ paddingTop: '3rem' }}>
+                        <div className="empty-icon"><MdQrCodeScanner size={28} /></div>
                         <h3>Select an Event</h3>
-                        <p>Choose one of your events to manage check-ins</p>
+                        <p>Choose one of your events above to manage attendee check-ins</p>
                     </div>
                 )}
             </div>
