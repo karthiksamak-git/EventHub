@@ -4,11 +4,10 @@ const bcrypt = require('bcryptjs');
 const UserSchema = new mongoose.Schema({
     name: { type: String, required: true, trim: true },
     email: { type: String, required: true, unique: true, lowercase: true, trim: true },
-    password: { type: String, required: true, minlength: 6 },
+    password: { type: String, required: true, minlength: 6, select: false },
     phone: { type: String, default: '' },
     avatar: { type: String, default: '' },
 
-    // Account type
     accountType: {
         type: String,
         enum: ['individual', 'organization'],
@@ -29,11 +28,9 @@ const UserSchema = new mongoose.Schema({
     gstin: { type: String, default: '' },
     website: { type: String, default: '' },
 
-    // Payment - UPI ID mandatory for organizers
     upiId: { type: String, default: '' },
     upiVerified: { type: Boolean, default: false },
 
-    // Profile
     bio: { type: String, default: '' },
     location: { type: String, default: '' },
     interests: [{ type: String }],
@@ -44,7 +41,6 @@ const UserSchema = new mongoose.Schema({
         website: { type: String, default: '' }
     },
 
-    // Networking
     connections: [{ type: mongoose.Schema.Types.ObjectId, ref: 'User' }],
     connectionRequests: [{ type: mongoose.Schema.Types.ObjectId, ref: 'User' }],
 

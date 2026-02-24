@@ -78,7 +78,6 @@ exports.bookTicket = async (req, res) => {
             attendeeDetails: attendeeDetails || {}
         });
 
-        // For paid tickets, hold quantity — only finalize sold count after payment
         if (totalAmount === 0) {
             await Event.updateOne(
                 { _id: eventId, 'ticketTypes.name': ticketTypeName },
@@ -105,8 +104,6 @@ exports.bookTicket = async (req, res) => {
     }
 };
 
-// POST /api/tickets/:id/submit-payment
-// Attendee submits UPI transaction reference after paying
 exports.submitPayment = async (req, res) => {
     try {
         const { upiTransactionRef } = req.body;

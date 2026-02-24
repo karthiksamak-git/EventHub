@@ -14,7 +14,6 @@ const TicketSchema = new mongoose.Schema({
     quantity: { type: Number, default: 1, min: 1 },
     totalAmount: { type: Number, required: true },
 
-    // ===== PAYMENT =====
     paymentStatus: {
         type: String,
         enum: ['pending', 'submitted', 'confirmed', 'failed', 'refunded'],
@@ -22,11 +21,8 @@ const TicketSchema = new mongoose.Schema({
     },
 
     organizerUpiId: { type: String, default: '' },
-    // UPI transaction reference entered by the attendee after paying
     upiTransactionRef: { type: String, default: '' },
-    // When the attendee submitted the UTR
     paymentSubmittedAt: { type: Date },
-    // When organizer or system confirmed
     paymentConfirmedAt: { type: Date },
     paymentConfirmedBy: { type: mongoose.Schema.Types.ObjectId, ref: 'User' },
 
@@ -38,7 +34,6 @@ const TicketSchema = new mongoose.Schema({
 
     qrCode: { type: String, default: '' },
 
-    // Check-in
     checkedIn: { type: Boolean, default: false },
     checkedInAt: { type: Date },
     checkedInBy: { type: mongoose.Schema.Types.ObjectId, ref: 'User' },

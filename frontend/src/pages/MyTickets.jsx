@@ -3,7 +3,7 @@ import { Link } from 'react-router-dom';
 import { ticketsAPI, eventsAPI } from '../services/api';
 import { format } from 'date-fns';
 import toast from 'react-hot-toast';
-import { FiCalendar, FiClock, FiMapPin, FiWifi, FiAlertCircle, FiX, FiClock as FiHourglass } from 'react-icons/fi';
+import { FiCalendar, FiClock, FiMapPin, FiWifi, FiAlertCircle, FiX } from 'react-icons/fi';
 import { MdHourglassTop } from 'react-icons/md';
 import PaymentModal from '../components/PaymentModal';
 import './MyTickets.css';
@@ -143,7 +143,6 @@ const MyTickets = () => {
                 )}
             </div>
 
-            { }
             {qrTicket && (
                 <div className="modal-overlay" onClick={() => setQrTicket(null)}>
                     <div className="modal" style={{ maxWidth: '400px', textAlign: 'center' }} onClick={e => e.stopPropagation()}>
@@ -164,7 +163,6 @@ const MyTickets = () => {
                 </div>
             )}
 
-            { }
             {payTicket && payEvent && (
                 <PaymentModal
                     ticket={payTicket}

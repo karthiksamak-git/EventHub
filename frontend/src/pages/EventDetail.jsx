@@ -22,7 +22,6 @@ const EventDetail = () => {
     const [commentText, setCommentText] = useState('');
     const [submittingComment, setSubmittingComment] = useState(false);
 
-    // Booking state
     const [showBooking, setShowBooking] = useState(false);
     const [selectedTicketType, setSelectedTicketType] = useState(null);
     const [quantity, setQuantity] = useState(1);
@@ -76,7 +75,6 @@ const EventDetail = () => {
         if (!isAuth) { toast.error('Please sign in to book a ticket.'); return; }
         if (!selectedTicketType) { toast.error('Please select a ticket type.'); return; }
 
-        // Check if organizer has UPI for paid ticket
         if (selectedTicketType.price > 0 && !event.organizerUpiId && !event.organizer?.upiId) {
             toast.error('The organizer has not set up payment collection for this event.');
             return;
@@ -91,9 +89,7 @@ const EventDetail = () => {
             });
             setShowBooking(false);
             setBookedTicket(res.data.ticket);
-            // If free, done. If paid, show payment modal.
             if (res.data.paymentRequired) {
-                // PaymentModal will be shown because bookedTicket is set with pending_payment status
                 toast.success('Ticket reserved. Please complete payment.');
             } else {
                 toast.success('Your free ticket has been confirmed!');

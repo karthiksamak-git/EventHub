@@ -105,17 +105,14 @@ const CreateEvent = () => {
     const handleSubmit = async (e) => {
         e.preventDefault();
 
-        // Online-specific validation
         if (form.isOnline && !form.onlineLink.trim()) {
             toast.error('Online event link is required.');
             return;
         }
-        // Physical location validation
         if (!form.isOnline && (!form.physicalLocation.city.trim() || !form.physicalLocation.country.trim())) {
             toast.error('City and country are required for in-person events.');
             return;
         }
-        // Paid ticket UPI check
         if (hasPaidTickets && !organizerHasUpi) {
             toast.error('Set up your UPI ID in your profile before creating paid events.');
             return;
@@ -169,7 +166,7 @@ const CreateEvent = () => {
                 )}
 
                 <form onSubmit={handleSubmit} className="create-event-form">
-                    {}
+                    { }
                     <div className="form-section glass">
                         <h3>Basic Information</h3>
                         <div className="form-grid-2">
@@ -209,7 +206,7 @@ const CreateEvent = () => {
                         </div>
                     </div>
 
-                    {}
+                    { }
                     <div className="form-section glass">
                         <h3>Date & Time</h3>
                         <div className="form-grid-4">
@@ -238,7 +235,7 @@ const CreateEvent = () => {
                         </div>
                     </div>
 
-                    {}
+                    { }
                     <div className="form-section glass">
                         <h3>Event Location</h3>
                         <div className="location-toggle">
@@ -321,7 +318,7 @@ const CreateEvent = () => {
                         )}
                     </div>
 
-                    {}
+                    { }
                     <div className="form-section glass">
                         <h3>Capacity</h3>
                         <div className="form-group" style={{ maxWidth: '300px' }}>
@@ -330,7 +327,7 @@ const CreateEvent = () => {
                         </div>
                     </div>
 
-                    {}
+                    { }
                     <div className="form-section glass">
                         <div className="section-header-row">
                             <h3>Ticket Types</h3>
@@ -383,7 +380,7 @@ const CreateEvent = () => {
                         )}
                     </div>
 
-                    {}
+                    { }
                     <div className="form-section glass">
                         <h3>Tags</h3>
                         <div className="tag-input-row">

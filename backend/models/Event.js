@@ -15,9 +15,8 @@ const EventSchema = new mongoose.Schema({
 
     isOnline: { type: Boolean, default: false },
     onlineLink: { type: String, default: '' },
-    onlinePlatform: { type: String, default: '' }, // e.g. Zoom, Google Meet, MS Teams
+    onlinePlatform: { type: String, default: '' },
 
-    // Physical location — free-text, no venue dependency
     physicalLocation: {
         addressLine1: { type: String, default: '' },
         addressLine2: { type: String, default: '' },
@@ -28,8 +27,6 @@ const EventSchema = new mongoose.Schema({
         landmark: { type: String, default: '' }
     },
 
-    // Optional venue reference (only if venue is selected from the venue directory)
-    // Entirely optional — not required even for physical events
     venueRef: { type: mongoose.Schema.Types.ObjectId, ref: 'Venue', default: null },
 
     startDate: { type: Date, required: true },
@@ -50,11 +47,8 @@ const EventSchema = new mongoose.Schema({
     maxAttendees: { type: Number, default: 0 },
     currentAttendees: { type: Number, default: 0 },
 
-    // Payment — organizer's UPI ID (copied from organizer's profile at event creation)
-
     organizerUpiId: { type: String, default: '' },
 
-    // Meta
     tags: [{ type: String }],
     status: {
         type: String,
