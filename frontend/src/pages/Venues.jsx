@@ -77,7 +77,7 @@ const Venues = () => {
                                     <div className="venue-stats">
                                         <div className="venue-stat"><FiUsers size={12} />{venue.capacity?.toLocaleString()} capacity</div>
                                     </div>
-                                    {venue.pricePerDay > 0 && <div className="venue-price">From <strong>${venue.pricePerDay?.toLocaleString()}</strong>/day</div>}
+                                    {venue.pricePerDay > 0 && <div className="venue-price">From <strong>₹{venue.pricePerDay?.toLocaleString()}</strong>/day</div>}
                                     <div className="venue-amenities">
                                         {venue.amenities?.slice(0, 4).map(a => (
                                             <span key={a} className="amenity-chip">{AMENITY_ICONS[a] || '✓'} {a}</span>
