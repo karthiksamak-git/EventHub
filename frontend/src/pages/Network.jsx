@@ -101,8 +101,8 @@ const Network = () => {
         <div className="network-page">
             <div className="container">
                 <div className="page-header">
-                    <h1>🤝 <span className="gradient-text">Network</span></h1>
-                    <p>Connect with attendees and organizers</p>
+                    <h1>🤝 <span className="gradient-text">People</span></h1>
+                    <p>Connect with attendees and organizers in the community</p>
                 </div>
 
                 <div className="tabs">

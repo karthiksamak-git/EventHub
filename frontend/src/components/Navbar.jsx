@@ -23,7 +23,7 @@ const Navbar = () => {
         { to: '/events', label: 'Events', icon: <FiTag /> },
         { to: '/calendar', label: 'Calendar', icon: <FiCalendar /> },
         { to: '/venues', label: 'Venues', icon: <FiMapPin /> },
-        { to: '/network', label: 'Network', icon: <FiUsers /> },
+        { to: '/network', label: 'People', icon: <FiUsers /> },
     ];
 
     const handleLogout = () => { logout(); navigate('/'); setDropdownOpen(false); };

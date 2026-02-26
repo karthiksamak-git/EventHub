@@ -20,6 +20,8 @@ const TIMEZONES = [
 
 const ONLINE_PLATFORMS = ['Zoom', 'Google Meet', 'Microsoft Teams', 'Webex', 'YouTube Live', 'Other'];
 
+const today = new Date().toISOString().split('T')[0];
+
 const CreateEvent = () => {
     const { user } = useAuth();
     const navigate = useNavigate();
@@ -105,6 +107,14 @@ const CreateEvent = () => {
     const handleSubmit = async (e) => {
         e.preventDefault();
 
+        if (!isEdit && form.startDate < today) {
+            toast.error('Start date cannot be in the past.');
+            return;
+        }
+        if (form.endDate < form.startDate) {
+            toast.error('End date cannot be before start date.');
+            return;
+        }
         if (form.isOnline && !form.onlineLink.trim()) {
             toast.error('Online event link is required.');
             return;
@@ -212,11 +222,11 @@ const CreateEvent = () => {
                         <div className="form-grid-4">
                             <div className="form-group">
                                 <label className="form-label">Start Date <span className="required">*</span></label>
-                                <input type="date" className="form-input" value={form.startDate} onChange={e => set('startDate', e.target.value)} required />
+                                <input type="date" className="form-input" value={form.startDate} min={isEdit ? undefined : today} onChange={e => { set('startDate', e.target.value); if (form.endDate && e.target.value > form.endDate) set('endDate', e.target.value); }} required />
                             </div>
                             <div className="form-group">
                                 <label className="form-label">End Date <span className="required">*</span></label>
-                                <input type="date" className="form-input" value={form.endDate} onChange={e => set('endDate', e.target.value)} required />
+                                <input type="date" className="form-input" value={form.endDate} min={form.startDate || (isEdit ? undefined : today)} onChange={e => set('endDate', e.target.value)} required />
                             </div>
                             <div className="form-group">
                                 <label className="form-label">Start Time</label>

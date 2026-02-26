@@ -14,7 +14,7 @@ const Venues = () => {
     const [loading, setLoading] = useState(true);
     const [search, setSearch] = useState('');
     const [showCreate, setShowCreate] = useState(false);
-    const [form, setForm] = useState({ name: '', description: '', capacity: '', pricePerDay: '', contactEmail: '', contactPhone: '', amenities: [], address: { street: '', city: '', state: '', country: 'USA', zipCode: '' } });
+    const [form, setForm] = useState({ name: '', description: '', capacity: '', pricePerDay: '', contactEmail: '', contactPhone: '', amenities: [], address: { line1: '', line2: '', city: '', state: '', country: '', postalCode: '' } });
     const [creating, setCreating] = useState(false);
 
     const fetchVenues = async () => {
@@ -54,7 +54,7 @@ const Venues = () => {
                     {isAuth && <button className="btn btn-primary" onClick={() => setShowCreate(true)}><FiPlus /> Add Venue</button>}
                 </div>
 
-                {}
+                { }
                 <div className="search-bar" style={{ maxWidth: '100%', marginBottom: '2rem' }}>
                     <FiSearch className="search-icon" />
                     <input type="text" placeholder="Search venues by name or city..." className="search-input" value={search} onChange={e => setSearch(e.target.value)} />
@@ -109,13 +109,17 @@ const Venues = () => {
                         <form onSubmit={handleCreate}>
                             <div className="form-grid-2" style={{ gap: '1rem', marginBottom: '1rem' }}>
                                 <div className="form-group col-span-2"><label className="form-label">Venue Name *</label><input className="form-input" required value={form.name} onChange={e => setForm(p => ({ ...p, name: e.target.value }))} /></div>
-                                <div className="form-group"><label className="form-label">Capacity *</label><input type="number" className="form-input" required value={form.capacity} onChange={e => setForm(p => ({ ...p, capacity: e.target.value }))} /></div>
-                                <div className="form-group"><label className="form-label">Price Per Day ($)</label><input type="number" className="form-input" value={form.pricePerDay} onChange={e => setForm(p => ({ ...p, pricePerDay: e.target.value }))} /></div>
-                                <div className="form-group"><label className="form-label">Street</label><input className="form-input" value={form.address.street} onChange={e => setForm(p => ({ ...p, address: { ...p.address, street: e.target.value } }))} /></div>
-                                <div className="form-group"><label className="form-label">City *</label><input className="form-input" required value={form.address.city} onChange={e => setForm(p => ({ ...p, address: { ...p.address, city: e.target.value } }))} /></div>
-                                <div className="form-group"><label className="form-label">State</label><input className="form-input" value={form.address.state} onChange={e => setForm(p => ({ ...p, address: { ...p.address, state: e.target.value } }))} /></div>
-                                <div className="form-group"><label className="form-label">Country</label><input className="form-input" value={form.address.country} onChange={e => setForm(p => ({ ...p, address: { ...p.address, country: e.target.value } }))} /></div>
-                                <div className="form-group col-span-2"><label className="form-label">Contact Email</label><input type="email" className="form-input" value={form.contactEmail} onChange={e => setForm(p => ({ ...p, contactEmail: e.target.value }))} /></div>
+                                <div className="form-group col-span-2"><label className="form-label">Description</label><textarea className="form-textarea" rows={2} placeholder="Brief description of the venue" value={form.description} onChange={e => setForm(p => ({ ...p, description: e.target.value }))} /></div>
+                                <div className="form-group"><label className="form-label">Capacity *</label><input type="number" className="form-input" required min={1} value={form.capacity} onChange={e => setForm(p => ({ ...p, capacity: e.target.value }))} /></div>
+                                <div className="form-group"><label className="form-label">Price Per Day (₹)</label><input type="number" className="form-input" value={form.pricePerDay} onChange={e => setForm(p => ({ ...p, pricePerDay: e.target.value }))} /></div>
+                                <div className="form-group col-span-2"><label className="form-label">Address Line 1 *</label><input className="form-input" required placeholder="Street address, building name" value={form.address.line1} onChange={e => setForm(p => ({ ...p, address: { ...p.address, line1: e.target.value } }))} /></div>
+                                <div className="form-group col-span-2"><label className="form-label">Address Line 2</label><input className="form-input" placeholder="Area, neighbourhood (optional)" value={form.address.line2} onChange={e => setForm(p => ({ ...p, address: { ...p.address, line2: e.target.value } }))} /></div>
+                                <div className="form-group"><label className="form-label">City *</label><input className="form-input" required placeholder="City" value={form.address.city} onChange={e => setForm(p => ({ ...p, address: { ...p.address, city: e.target.value } }))} /></div>
+                                <div className="form-group"><label className="form-label">State *</label><input className="form-input" required placeholder="State or province" value={form.address.state} onChange={e => setForm(p => ({ ...p, address: { ...p.address, state: e.target.value } }))} /></div>
+                                <div className="form-group"><label className="form-label">Country *</label><input className="form-input" required placeholder="Country" value={form.address.country} onChange={e => setForm(p => ({ ...p, address: { ...p.address, country: e.target.value } }))} /></div>
+                                <div className="form-group"><label className="form-label">Postal Code</label><input className="form-input" placeholder="Postal / ZIP code" value={form.address.postalCode} onChange={e => setForm(p => ({ ...p, address: { ...p.address, postalCode: e.target.value } }))} /></div>
+                                <div className="form-group"><label className="form-label">Contact Email</label><input type="email" className="form-input" placeholder="venue@example.com" value={form.contactEmail} onChange={e => setForm(p => ({ ...p, contactEmail: e.target.value }))} /></div>
+                                <div className="form-group"><label className="form-label">Contact Phone</label><input type="tel" className="form-input" placeholder="+91 XXXXX XXXXX" value={form.contactPhone} onChange={e => setForm(p => ({ ...p, contactPhone: e.target.value }))} /></div>
                             </div>
                             <div className="form-group" style={{ marginBottom: '1rem' }}>
                                 <label className="form-label">Amenities</label>
