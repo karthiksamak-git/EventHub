@@ -96,7 +96,10 @@ exports.addReview = async (req, res) => {
         venue.reviews.push({ user: req.user.id, rating, comment });
         const avgRating = venue.reviews.reduce((acc, r) => acc + r.rating, 0) / venue.reviews.length;
         venue.rating = Math.round(avgRating * 10) / 10;
-        await venue.save();
+        await Venue.updateOne(
+            { _id: venue._id },
+            { $set: { reviews: venue.reviews, rating: venue.rating } }
+        );
         const updated = await Venue.findById(req.params.id).populate('reviews.user', 'name avatar');
         res.json({ success: true, rating: venue.rating, reviews: updated.reviews });
     } catch (err) {

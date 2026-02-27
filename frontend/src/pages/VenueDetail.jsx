@@ -6,7 +6,7 @@ import { format } from 'date-fns';
 import toast from 'react-hot-toast';
 import {
     FiArrowLeft, FiMapPin, FiUsers, FiStar, FiPhone, FiMail,
-    FiGlobe, FiCalendar, FiNavigation, FiDollarSign, FiExternalLink
+    FiGlobe, FiCalendar, FiNavigation, FiCreditCard, FiExternalLink
 } from 'react-icons/fi';
 import './VenueDetail.css';
 
@@ -94,9 +94,7 @@ const VenueDetail = () => {
                                 <div className="venue-hero-meta">
                                     <span><FiMapPin size={14} />{venue.address?.city}, {venue.address?.state}, {venue.address?.country}</span>
                                     <span><FiUsers size={14} />Capacity: {venue.capacity?.toLocaleString()}</span>
-                                    {venue.pricePerDay > 0 && (
-                                        <span><FiDollarSign size={14} />₹{venue.pricePerDay?.toLocaleString()}/day</span>
-                                    )}
+                                    <span><FiCreditCard size={14} />₹{venue.pricePerDay?.toLocaleString()}/day</span>
                                 </div>
                                 <div className="venue-rating-row">
                                     <StarRating value={Math.round(venue.rating || 0)} readOnly />
