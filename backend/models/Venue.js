@@ -41,7 +41,8 @@ const VenueSchema = new mongoose.Schema({
         eventId: { type: mongoose.Schema.Types.ObjectId, ref: 'Event' },
         startDate: { type: Date },
         endDate: { type: Date }
-    }]
+    }],
+    likes: [{ type: mongoose.Schema.Types.ObjectId, ref: 'User' }]
 }, { timestamps: true });
 
 module.exports = mongoose.model('Venue', VenueSchema);

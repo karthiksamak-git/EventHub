@@ -61,6 +61,7 @@ export const venuesAPI = {
     update: (id, data) => API.put(`/venues/${id}`, data),
     delete: (id) => API.delete(`/venues/${id}`),
     addReview: (id, data) => API.post(`/venues/${id}/review`, data),
+    like: (id) => API.post(`/venues/${id}/like`),
 };
 
 export const usersAPI = {

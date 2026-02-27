@@ -6,7 +6,7 @@ import { format } from 'date-fns';
 import toast from 'react-hot-toast';
 import {
     FiArrowLeft, FiMapPin, FiUsers, FiStar, FiPhone, FiMail,
-    FiGlobe, FiCalendar, FiNavigation, FiCreditCard, FiExternalLink
+    FiGlobe, FiCalendar, FiNavigation, FiCreditCard, FiExternalLink, FiHeart
 } from 'react-icons/fi';
 import './VenueDetail.css';
 
@@ -41,12 +41,19 @@ const VenueDetail = () => {
     const [reviewRating, setReviewRating] = useState(5);
     const [reviewComment, setReviewComment] = useState('');
     const [submittingReview, setSubmittingReview] = useState(false);
+    const [liked, setLiked] = useState(false);
 
     useEffect(() => {
         venuesAPI.getOne(id)
             .then(res => {
-                setVenue(res.data.venue);
+                const venueData = res.data.venue;
+                setVenue(venueData);
                 setEvents(res.data.events || []);
+                if (user) {
+                    const userId = user.id || user._id;
+                    const isLiked = venueData.likes?.some(l => String(l?._id || l?.id || l) === String(userId));
+                    setLiked(!!isLiked);
+                }
             })
             .catch(() => {
                 toast.error('Venue not found.');
@@ -70,6 +77,17 @@ const VenueDetail = () => {
             toast.error(err.response?.data?.message || 'Failed to submit review.');
         }
         setSubmittingReview(false);
+    };
+
+    const handleLike = async () => {
+        if (!isAuth) { toast.error('Please sign in to like venues.'); return; }
+        try {
+            const res = await venuesAPI.like(id);
+            setLiked(res.data.liked);
+            setVenue(v => ({ ...v, likes: Array.from({ length: res.data.likes }) }));
+        } catch (err) {
+            toast.error(err.response?.data?.message || 'Failed to like venue.');
+        }
     };
 
     if (loading) return <div className="loading-screen" style={{ paddingTop: '7rem' }}><div className="spinner" /></div>;
@@ -101,6 +119,10 @@ const VenueDetail = () => {
                                     <span style={{ color: 'var(--text-2)', fontSize: '0.9rem' }}>
                                         {venue.rating?.toFixed(1) || '—'} ({venue.reviews?.length || 0} reviews)
                                     </span>
+                                    <button className={`venue-like-btn ${liked ? 'active' : ''}`} onClick={handleLike} title={liked ? 'Unlike' : 'Like'}>
+                                        <FiHeart fill={liked ? 'currentColor' : 'none'} size={15} />
+                                        <span>{venue.likes?.length || 0}</span>
+                                    </button>
                                 </div>
                             </div>
                         </div>

@@ -170,9 +170,17 @@ exports.likeEvent = async (req, res) => {
     try {
         const event = await Event.findById(req.params.id);
         if (!event) return res.status(404).json({ success: false, message: 'Event not found.' });
-        const idx = event.likes.indexOf(req.user.id);
-        if (idx > -1) event.likes.splice(idx, 1);
-        else event.likes.push(req.user.id);
+
+        const userIdStr = req.user.id.toString();
+        const likesStrings = event.likes.map(id => id.toString());
+        const idx = likesStrings.indexOf(userIdStr);
+
+        if (idx > -1) {
+            event.likes.splice(idx, 1);
+        } else {
+            event.likes.push(req.user.id);
+        }
+
         await event.save();
         res.json({ success: true, likes: event.likes.length, liked: idx === -1 });
     } catch (err) {

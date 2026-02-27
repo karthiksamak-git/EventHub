@@ -10,7 +10,7 @@ router.get('/:id', optionalAuth, getEvent);
 router.post('/', protect, createEvent);
 router.put('/:id', protect, updateEvent);
 router.delete('/:id', protect, deleteEvent);
-router.put('/:id/like', protect, likeEvent);
-router.post('/:id/comment', protect, addComment);
+router.post('/:id/like', protect, likeEvent);
+router.post('/:id/comments', protect, addComment);
 
 module.exports = router;

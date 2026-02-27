@@ -45,8 +45,13 @@ const EventDetail = () => {
     useEffect(() => {
         eventsAPI.getOne(id)
             .then(res => {
-                setEvent(res.data.event);
-                if (user) setLiked(res.data.event.likes?.includes(user._id) || res.data.event.likes?.includes(user.id));
+                const eventData = res.data.event;
+                setEvent(eventData);
+                if (user) {
+                    const userId = user.id || user._id;
+                    const isLiked = eventData.likes?.some(l => String(l?._id || l?.id || l) === String(userId));
+                    setLiked(!!isLiked);
+                }
             })
             .catch(() => navigate('/events'))
             .finally(() => setLoading(false));

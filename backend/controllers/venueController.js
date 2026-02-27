@@ -106,3 +106,26 @@ exports.addReview = async (req, res) => {
         res.status(500).json({ success: false, message: err.message });
     }
 };
+
+exports.likeVenue = async (req, res) => {
+    try {
+        const venue = await Venue.findById(req.params.id);
+        if (!venue) return res.status(404).json({ success: false, message: 'Venue not found.' });
+
+        const userIdStr = req.user.id.toString();
+        const likesStrings = (venue.likes || []).map(id => id.toString());
+        const idx = likesStrings.indexOf(userIdStr);
+
+        if (idx > -1) {
+            venue.likes.splice(idx, 1);
+        } else {
+            if (!venue.likes) venue.likes = [];
+            venue.likes.push(req.user.id);
+        }
+
+        await venue.save();
+        res.json({ success: true, likes: venue.likes.length, liked: idx === -1 });
+    } catch (err) {
+        res.status(500).json({ success: false, message: err.message });
+    }
+};
