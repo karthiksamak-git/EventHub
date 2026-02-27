@@ -75,7 +75,7 @@ exports.createEvent = async (req, res) => {
 
         const {
             title, description, category, isOnline, onlineLink, onlinePlatform,
-            physicalLocation, startDate, endDate, startTime, endTime, timezone,
+            physicalLocation, venueRef, startDate, endDate, startTime, endTime, timezone,
             ticketTypes, maxAttendees, tags, status, isFeatured,
             requirements, refundPolicy, ageRestriction, language
         } = req.body;
@@ -114,6 +114,7 @@ exports.createEvent = async (req, res) => {
             language: language || 'English',
             organizer: req.user.id,
             organizerUpiId: organizer.upiId || '',
+            venueRef: venueRef === '' ? null : venueRef,
             checkInCode
         };
 
@@ -143,6 +144,10 @@ exports.updateEvent = async (req, res) => {
         }
         if (req.body.isOnline === true || req.body.isOnline === 'true') {
             req.body.physicalLocation = {};
+        }
+
+        if (req.body.venueRef === '') {
+            req.body.venueRef = null;
         }
 
         const updated = await Event.findByIdAndUpdate(req.params.id, req.body, { new: true, runValidators: true })

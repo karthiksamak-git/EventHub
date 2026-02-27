@@ -168,9 +168,11 @@ const CreateEvent = () => {
             const payload = { ...form };
             if (form.isOnline) {
                 payload.physicalLocation = {};
+                payload.venueRef = null;
             } else {
                 payload.onlineLink = '';
                 payload.onlinePlatform = '';
+                if (!payload.venueRef) payload.venueRef = null;
             }
 
             if (isEdit) {
