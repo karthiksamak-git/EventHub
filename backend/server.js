@@ -56,6 +56,7 @@ app.use('/api/venues', require('./routes/venues'));
 app.use('/api/users', require('./routes/users'));
 app.use('/api/checkin', require('./routes/checkin'));
 app.use('/api/network', require('./routes/network'));
+app.use('/api/stats', require('./routes/stats'));
 
 app.get('/api/health', (req, res) =>
   res.json({ status: 'OK', message: 'EventHub API is running', timestamp: new Date().toISOString() })

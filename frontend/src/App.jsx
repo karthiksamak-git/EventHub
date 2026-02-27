@@ -11,6 +11,7 @@ import EventDetail from './pages/EventDetail';
 import CreateEvent from './pages/CreateEvent';
 import Calendar from './pages/Calendar';
 import Venues from './pages/Venues';
+import VenueDetail from './pages/VenueDetail';
 import Network from './pages/Network';
 import MyTickets from './pages/MyTickets';
 import Dashboard from './pages/Dashboard';
@@ -39,6 +40,7 @@ const AppRoutes = () => {
         <Route path="/events/:id/edit" element={<ProtectedRoute><CreateEvent /></ProtectedRoute>} />
         <Route path="/calendar" element={<Calendar />} />
         <Route path="/venues" element={<Venues />} />
+        <Route path="/venues/:id" element={<VenueDetail />} />
         <Route path="/network" element={<Network />} />
         <Route path="/my-tickets" element={<ProtectedRoute><MyTickets /></ProtectedRoute>} />
         <Route path="/dashboard" element={<ProtectedRoute><Dashboard /></ProtectedRoute>} />

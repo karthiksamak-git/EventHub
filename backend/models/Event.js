@@ -24,7 +24,8 @@ const EventSchema = new mongoose.Schema({
         state: { type: String, default: '' },
         country: { type: String, default: '' },
         postalCode: { type: String, default: '' },
-        landmark: { type: String, default: '' }
+        landmark: { type: String, default: '' },
+        mapLink: { type: String, default: '' }
     },
 
     venueRef: { type: mongoose.Schema.Types.ObjectId, ref: 'Venue', default: null },

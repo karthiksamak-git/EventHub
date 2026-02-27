@@ -15,7 +15,7 @@ const Dashboard = () => {
     const navigate = useNavigate();
     const [myEvents, setMyEvents] = useState([]);
     const [myTickets, setMyTickets] = useState([]);
-    const [pendingPayments, setPendingPayments] = useState([]);
+    const [attendees, setAttendees] = useState([]);
     const [loading, setLoading] = useState(true);
     const [upiInput, setUpiInput] = useState(user?.upiId || '');
     const [savingUpi, setSavingUpi] = useState(false);
@@ -34,15 +34,15 @@ const Dashboard = () => {
 
                 if (user?.role === 'organizer' || user?.role === 'admin') {
                     const events = evRes.data.events || [];
-                    const pendingAll = [];
+                    const attendeesAll = [];
                     for (const ev of events.slice(0, 5)) {
                         try {
                             const tickRes = await ticketsAPI.getEventTickets(ev._id);
-                            const submitted = (tickRes.data.tickets || []).filter(t => t.paymentStatus === 'submitted');
-                            submitted.forEach(t => pendingAll.push({ ...t, eventTitle: ev.title }));
+                            const validTickets = (tickRes.data.tickets || []).filter(t => t.status !== 'cancelled');
+                            validTickets.forEach(t => attendeesAll.push({ ...t, eventTitle: ev.title }));
                         } catch { }
                     }
-                    setPendingPayments(pendingAll);
+                    setAttendees(attendeesAll);
                 }
             } catch { }
             setLoading(false);
@@ -63,9 +63,9 @@ const Dashboard = () => {
 
     const handleConfirmPayment = async (ticketId) => {
         try {
-            await ticketsAPI.confirmPayment(ticketId);
+            const res = await ticketsAPI.confirmPayment(ticketId);
             toast.success('Payment confirmed. Ticket activated.');
-            setPendingPayments(prev => prev.filter(t => t._id !== ticketId));
+            setAttendees(prev => prev.map(t => t._id === ticketId ? { ...t, paymentStatus: 'confirmed', status: 'active' } : t));
         } catch (err) { toast.error(err.response?.data?.message || 'Failed.'); }
     };
 
@@ -74,7 +74,7 @@ const Dashboard = () => {
         try {
             await ticketsAPI.rejectPayment(ticketId);
             toast.success('Payment rejected.');
-            setPendingPayments(prev => prev.filter(t => t._id !== ticketId));
+            setAttendees(prev => prev.map(t => t._id === ticketId ? { ...t, paymentStatus: 'failed' } : t));
         } catch (err) { toast.error(err.response?.data?.message || 'Failed.'); }
     };
 
@@ -101,8 +101,8 @@ const Dashboard = () => {
                     <div className="dashboard-tabs">
                         <button className={`tab ${activeTab === 'overview' ? 'active' : ''}`} onClick={() => setActiveTab('overview')}>Overview</button>
                         {(user?.role === 'organizer' || user?.role === 'admin') && (
-                            <button className={`tab ${activeTab === 'payments' ? 'active' : ''}`} onClick={() => setActiveTab('payments')}>
-                                Pending Payments {pendingPayments.length > 0 && <span className="tab-badge">{pendingPayments.length}</span>}
+                            <button className={`tab ${activeTab === 'attendees' ? 'active' : ''}`} onClick={() => setActiveTab('attendees')}>
+                                Attendees {attendees.filter(t => t.paymentStatus === 'submitted').length > 0 && <span className="tab-badge">{attendees.filter(t => t.paymentStatus === 'submitted').length}</span>}
                             </button>
                         )}
                         <button className={`tab ${activeTab === 'settings' ? 'active' : ''}`} onClick={() => setActiveTab('settings')}>Settings</button>
@@ -111,7 +111,7 @@ const Dashboard = () => {
 
                 {activeTab === 'overview' && (
                     <>
-                        {}
+                        { }
                         <div className="dashboard-stats">
                             <div className="stat-card">
                                 <div className="stat-icon" style={{ background: 'rgba(108,99,255,0.12)', color: 'var(--primary)' }}><FiCalendar size={20} /></div>
@@ -137,7 +137,7 @@ const Dashboard = () => {
                             )}
                         </div>
 
-                        {}
+                        { }
                         {(user?.role === 'organizer' || user?.role === 'admin') && (
                             <div className="quick-actions glass">
                                 <h3>Quick Actions</h3>
@@ -149,7 +149,7 @@ const Dashboard = () => {
                             </div>
                         )}
 
-                        {}
+                        { }
                         {(user?.role === 'organizer') && !user?.upiId && (
                             <div className="alert alert-warning">
                                 <FiAlertCircle />
@@ -161,7 +161,7 @@ const Dashboard = () => {
                         )}
 
                         <div className="dashboard-cols">
-                            {}
+                            { }
                             <div className="dash-col">
                                 <div className="col-header">
                                     <h3>My Events</h3>
@@ -192,7 +192,7 @@ const Dashboard = () => {
                                 )}
                             </div>
 
-                            {}
+                            { }
                             <div className="dash-col">
                                 <div className="col-header">
                                     <h3>My Tickets</h3>
@@ -225,37 +225,46 @@ const Dashboard = () => {
                     </>
                 )}
 
-                {activeTab === 'payments' && (
+                {activeTab === 'attendees' && (
                     <div className="payments-tab">
-                        <h2>Pending Payment Verifications</h2>
+                        <h2>Attendees & Verifications</h2>
                         <p style={{ color: 'var(--text-2)', marginBottom: '1.5rem', fontSize: '0.9rem' }}>
-                            Review attendees who have submitted their UPI transaction reference. Confirm to activate their ticket.
+                            View your recent attendees and review submitted UPI transaction references.
                         </p>
-                        {pendingPayments.length === 0 ? (
+                        {attendees.length === 0 ? (
                             <div className="empty-state">
-                                <div className="icon-box"><FiCheck size={24} /></div>
-                                <p>No pending payment verifications</p>
+                                <div className="icon-box"><FiUsers size={24} /></div>
+                                <p>No attendees yet</p>
                             </div>
                         ) : (
                             <div className="payments-list">
-                                {pendingPayments.map(ticket => (
-                                    <div key={ticket._id} className="payment-verify-card glass">
-                                        <div className="pvc-event">{ticket.eventTitle}</div>
+                                {attendees.map(ticket => (
+                                    <div key={ticket._id} className="payment-verify-card glass" style={{ borderLeft: ticket.paymentStatus === 'submitted' ? '4px solid var(--warning)' : ticket.status === 'active' ? '4px solid var(--success)' : 'none' }}>
+                                        <div className="pvc-event">
+                                            {ticket.eventTitle}
+                                            <span className={`badge ml-2 ${ticket.status === 'active' ? 'badge-success' : ticket.paymentStatus === 'submitted' ? 'badge-warning' : 'badge-secondary'}`}>
+                                                {ticket.status === 'active' ? 'Active' : ticket.paymentStatus === 'submitted' ? 'Verification Pending' : ticket.status}
+                                            </span>
+                                        </div>
                                         <div className="pvc-details">
                                             <div><span>Attendee:</span> {ticket.attendee?.name} ({ticket.attendee?.email})</div>
                                             <div><span>Ticket:</span> {ticket.ticketType?.name} &times; {ticket.quantity}</div>
-                                            <div><span>Amount:</span> ₹{ticket.totalAmount?.toLocaleString()}</div>
-                                            <div><span>UTR Submitted:</span> <code>{ticket.upiTransactionRef}</code></div>
-                                            <div><span>Submitted At:</span> {ticket.paymentSubmittedAt ? format(new Date(ticket.paymentSubmittedAt), 'MMM d, h:mm a') : '—'}</div>
+                                            <div><span>Amount:</span> {ticket.totalAmount === 0 ? 'Free' : `₹${ticket.totalAmount?.toLocaleString()}`}</div>
+                                            {ticket.upiTransactionRef && <div><span>UTR:</span> <code>{ticket.upiTransactionRef}</code></div>}
+                                            {ticket.paymentStatus === 'submitted' && ticket.paymentSubmittedAt && (
+                                                <div><span>Submitted:</span> {format(new Date(ticket.paymentSubmittedAt), 'MMM d, h:mm a')}</div>
+                                            )}
                                         </div>
-                                        <div className="pvc-actions">
-                                            <button className="btn btn-primary btn-sm" onClick={() => handleConfirmPayment(ticket._id)}>
-                                                <FiCheck size={14} /> Confirm Payment
-                                            </button>
-                                            <button className="btn btn-danger btn-sm" onClick={() => handleRejectPayment(ticket._id)}>
-                                                <FiX size={14} /> Reject
-                                            </button>
-                                        </div>
+                                        {ticket.paymentStatus === 'submitted' && (
+                                            <div className="pvc-actions">
+                                                <button className="btn btn-primary btn-sm" onClick={() => handleConfirmPayment(ticket._id)}>
+                                                    <FiCheck size={14} /> Confirm Payment
+                                                </button>
+                                                <button className="btn btn-danger btn-sm" onClick={() => handleRejectPayment(ticket._id)}>
+                                                    <FiX size={14} /> Reject
+                                                </button>
+                                            </div>
+                                        )}
                                     </div>
                                 ))}
                             </div>
@@ -267,7 +276,7 @@ const Dashboard = () => {
                     <div className="settings-tab glass">
                         <h2>Account Settings</h2>
 
-                        {}
+                        { }
                         <div className="settings-section">
                             <h3>Payment Collection (UPI)</h3>
                             <p style={{ color: 'var(--text-2)', fontSize: '0.875rem', marginBottom: '1rem', lineHeight: '1.6' }}>

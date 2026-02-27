@@ -14,7 +14,7 @@ const Venues = () => {
     const [loading, setLoading] = useState(true);
     const [search, setSearch] = useState('');
     const [showCreate, setShowCreate] = useState(false);
-    const [form, setForm] = useState({ name: '', description: '', capacity: '', pricePerDay: '', contactEmail: '', contactPhone: '', amenities: [], address: { line1: '', line2: '', city: '', state: '', country: '', postalCode: '' } });
+    const [form, setForm] = useState({ name: '', description: '', capacity: '', pricePerDay: '', contactEmail: '', contactPhone: '', amenities: [], address: { line1: '', line2: '', city: '', state: '', country: '', postalCode: '', mapLink: '' } });
     const [creating, setCreating] = useState(false);
 
     const fetchVenues = async () => {
@@ -114,6 +114,7 @@ const Venues = () => {
                                 <div className="form-group"><label className="form-label">Price Per Day (₹)</label><input type="number" className="form-input" value={form.pricePerDay} onChange={e => setForm(p => ({ ...p, pricePerDay: e.target.value }))} /></div>
                                 <div className="form-group col-span-2"><label className="form-label">Address Line 1 *</label><input className="form-input" required placeholder="Street address, building name" value={form.address.line1} onChange={e => setForm(p => ({ ...p, address: { ...p.address, line1: e.target.value } }))} /></div>
                                 <div className="form-group col-span-2"><label className="form-label">Address Line 2</label><input className="form-input" placeholder="Area, neighbourhood (optional)" value={form.address.line2} onChange={e => setForm(p => ({ ...p, address: { ...p.address, line2: e.target.value } }))} /></div>
+                                <div className="form-group col-span-2"><label className="form-label">Map Link (Google Maps etc.) *</label><input type="url" className="form-input" required placeholder="https://maps.google.com/..." value={form.address.mapLink} onChange={e => setForm(p => ({ ...p, address: { ...p.address, mapLink: e.target.value } }))} /></div>
                                 <div className="form-group"><label className="form-label">City *</label><input className="form-input" required placeholder="City" value={form.address.city} onChange={e => setForm(p => ({ ...p, address: { ...p.address, city: e.target.value } }))} /></div>
                                 <div className="form-group"><label className="form-label">State *</label><input className="form-input" required placeholder="State or province" value={form.address.state} onChange={e => setForm(p => ({ ...p, address: { ...p.address, state: e.target.value } }))} /></div>
                                 <div className="form-group"><label className="form-label">Country *</label><input className="form-input" required placeholder="Country" value={form.address.country} onChange={e => setForm(p => ({ ...p, address: { ...p.address, country: e.target.value } }))} /></div>

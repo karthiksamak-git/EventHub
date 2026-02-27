@@ -1,9 +1,9 @@
 import { useState, useEffect } from 'react';
 import { useNavigate, useParams, Link } from 'react-router-dom';
-import { eventsAPI } from '../services/api';
+import { eventsAPI, venuesAPI } from '../services/api';
 import { useAuth } from '../context/AuthContext';
 import toast from 'react-hot-toast';
-import { FiArrowLeft, FiPlus, FiX, FiAlertCircle, FiWifi, FiMapPin } from 'react-icons/fi';
+import { FiArrowLeft, FiPlus, FiX, FiAlertCircle, FiWifi, FiMapPin, FiNavigation } from 'react-icons/fi';
 import './CreateEvent.css';
 
 const CATEGORIES = [
@@ -37,9 +37,10 @@ const CreateEvent = () => {
         isOnline: false,
         onlineLink: '',
         onlinePlatform: '',
+        venueRef: '',
         physicalLocation: {
             addressLine1: '', addressLine2: '', city: '', state: '',
-            country: '', postalCode: '', landmark: ''
+            country: '', postalCode: '', landmark: '', mapLink: ''
         },
         startDate: '', endDate: '', startTime: '09:00', endTime: '18:00',
         timezone: 'Asia/Kolkata',
@@ -63,7 +64,8 @@ const CreateEvent = () => {
                         title: e.title, description: e.description, category: e.category,
                         isOnline: e.isOnline,
                         onlineLink: e.onlineLink || '', onlinePlatform: e.onlinePlatform || '',
-                        physicalLocation: e.physicalLocation || { addressLine1: '', addressLine2: '', city: '', state: '', country: '', postalCode: '', landmark: '' },
+                        venueRef: e.venueRef || '',
+                        physicalLocation: e.physicalLocation || { addressLine1: '', addressLine2: '', city: '', state: '', country: '', postalCode: '', landmark: '', mapLink: '' },
                         startDate: e.startDate?.substring(0, 10),
                         endDate: e.endDate?.substring(0, 10),
                         startTime: e.startTime, endTime: e.endTime,
@@ -78,10 +80,39 @@ const CreateEvent = () => {
                 })
                 .catch(() => navigate('/events'));
         }
+        venuesAPI.getAll().then(res => setVenues(res.data.venues || [])).catch(() => { });
     }, [id]);
+
+    const [venues, setVenues] = useState([]);
 
     const set = (key, val) => setForm(p => ({ ...p, [key]: val }));
     const setLocation = (key, val) => setForm(p => ({ ...p, physicalLocation: { ...p.physicalLocation, [key]: val } }));
+
+    const handleVenueSelect = (e) => {
+        const vId = e.target.value;
+        if (!vId) {
+            set('venueRef', '');
+            setForm(p => ({ ...p, physicalLocation: { addressLine1: '', addressLine2: '', city: '', state: '', country: '', postalCode: '', landmark: '', mapLink: '' } }));
+            return;
+        }
+        const v = venues.find(x => x._id === vId);
+        if (v) {
+            set('venueRef', vId);
+            setForm(p => ({
+                ...p,
+                physicalLocation: {
+                    addressLine1: v.address?.line1 || '',
+                    addressLine2: v.address?.line2 || '',
+                    city: v.address?.city || '',
+                    state: v.address?.state || '',
+                    country: v.address?.country || '',
+                    postalCode: v.address?.postalCode || '',
+                    landmark: v.address?.landmark || '',
+                    mapLink: v.address?.mapLink || ''
+                }
+            }));
+        }
+    };
 
     const addTicketType = () => setForm(p => ({
         ...p,
@@ -294,6 +325,13 @@ const CreateEvent = () => {
                             </div>
                         ) : (
                             <div className="physical-fields">
+                                <div className="form-group mb-4">
+                                    <label className="form-label">Select Saved Venue (Optional)</label>
+                                    <select className="form-select" value={form.venueRef} onChange={handleVenueSelect}>
+                                        <option value="">-- Custom Location --</option>
+                                        {venues.map(v => <option key={v._id} value={v._id}>{v.name} ({v.address?.city})</option>)}
+                                    </select>
+                                </div>
                                 <div className="form-grid-2">
                                     <div className="form-group col-span-2">
                                         <label className="form-label">Address Line 1 <span className="required">*</span></label>
@@ -302,6 +340,10 @@ const CreateEvent = () => {
                                     <div className="form-group col-span-2">
                                         <label className="form-label">Address Line 2</label>
                                         <input className="form-input" placeholder="Area, neighbourhood (optional)" value={form.physicalLocation.addressLine2} onChange={e => setLocation('addressLine2', e.target.value)} />
+                                    </div>
+                                    <div className="form-group col-span-2">
+                                        <label className="form-label"><FiNavigation size={13} /> Map Link (Optional)</label>
+                                        <input type="url" className="form-input" placeholder="https://maps.google.com/..." value={form.physicalLocation.mapLink} onChange={e => setLocation('mapLink', e.target.value)} />
                                     </div>
                                     <div className="form-group">
                                         <label className="form-label">City <span className="required">*</span></label>

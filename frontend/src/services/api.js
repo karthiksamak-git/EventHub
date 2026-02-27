@@ -82,4 +82,8 @@ export const networkAPI = {
     getEventAttendees: (eventId) => API.get(`/network/event/${eventId}`),
 };
 
+export const statsAPI = {
+    get: () => API.get('/stats'),
+};
+
 export default API;

@@ -15,6 +15,7 @@ const CheckIn = () => {
     const [scanInput, setScanInput] = useState('');
     const [scanning, setScanning] = useState(false);
     const [recentCheckins, setRecentCheckins] = useState([]);
+    const [lastScanned, setLastScanned] = useState(null);
 
     useEffect(() => {
         eventsAPI.getMyEvents().then(res => setMyEvents(res.data.events || [])).catch(() => { });
@@ -33,12 +34,15 @@ const CheckIn = () => {
         } catch { setStats(null); }
     };
 
-    const handleScan = async (e) => {
-        e.preventDefault();
-        if (!scanInput.trim() || !selectedEvent) { toast.error('Enter a ticket ID or scan a QR code.'); return; }
+    const handleScan = async (e, forceId = null) => {
+        if (e) e.preventDefault();
+        const idToScan = forceId || scanInput.trim();
+        if (!idToScan || !selectedEvent) { toast.error('Enter a ticket ID or scan a QR code.'); return; }
         setScanning(true);
         try {
-            let ticketId = scanInput.trim();
+            let ticketId = idToScan;
+            const idMatch = idToScan.match(/ID:\s*([a-zA-Z0-9-]+)/);
+            if (idMatch) ticketId = idMatch[1];
             try {
                 const parsed = JSON.parse(ticketId);
                 ticketId = parsed.ticketId || ticketId;
@@ -46,11 +50,31 @@ const CheckIn = () => {
             const res = await checkinAPI.scan({ ticketId, eventId: selectedEvent });
             toast.success(res.data.message);
             setScanInput('');
+            setLastScanned(res.data.ticket);
             fetchStats();
         } catch (err) {
             toast.error(err.response?.data?.message || 'Check-in failed. Verify the ticket ID.');
+            setLastScanned(null);
         }
         setScanning(false);
+    };
+
+    const handleInputChange = (e) => {
+        let val = e.target.value;
+        setScanInput(val);
+        const idMatch = val.match(/ID:\s*([a-zA-Z0-9-]+)/);
+        if (idMatch) {
+            setScanInput(idMatch[1]);
+            handleScan(null, idMatch[1]);
+            return;
+        }
+        try {
+            const parsed = JSON.parse(val);
+            if (parsed.ticketId) {
+                setScanInput(parsed.ticketId);
+                handleScan(null, parsed.ticketId);
+            }
+        } catch { }
     };
 
     return (
@@ -123,7 +147,7 @@ const CheckIn = () => {
                                         className="form-input scan-input"
                                         placeholder="Ticket ID or QR code data..."
                                         value={scanInput}
-                                        onChange={e => setScanInput(e.target.value)}
+                                        onChange={handleInputChange}
                                         autoFocus
                                     />
                                 </div>
@@ -131,6 +155,20 @@ const CheckIn = () => {
                                     {scanning ? 'Processing...' : 'Check In'}
                                 </button>
                             </form>
+
+                            {lastScanned && (
+                                <div className="last-scanned success card mt-3 p-3" style={{ background: 'rgba(78, 205, 196, 0.1)', border: '1px solid var(--accent)' }}>
+                                    <h4 style={{ color: 'var(--accent)', marginBottom: '0.5rem', display: 'flex', alignItems: 'center', gap: '0.4rem' }}>
+                                        <FiCheckCircle /> Checked In Successfully
+                                    </h4>
+                                    <div style={{ fontWeight: 600, fontSize: '1.1rem' }}>{lastScanned.attendee?.name}</div>
+                                    <div style={{ color: 'var(--text-2)', fontSize: '0.9rem' }}>{lastScanned.attendee?.email}</div>
+                                    <div style={{ marginTop: '0.5rem', fontSize: '0.85rem' }}>
+                                        <span className="badge badge-primary">{lastScanned.ticketType?.name}</span>
+                                        <span style={{ marginLeft: '0.5rem' }}>Qty: {lastScanned.quantity}</span>
+                                    </div>
+                                </div>
+                            )}
                         </div>
 
                         {recentCheckins.length > 0 && (

@@ -3,7 +3,7 @@ import { Link } from 'react-router-dom';
 import { ticketsAPI, eventsAPI } from '../services/api';
 import { format } from 'date-fns';
 import toast from 'react-hot-toast';
-import { FiCalendar, FiClock, FiMapPin, FiWifi, FiAlertCircle, FiX } from 'react-icons/fi';
+import { FiCalendar, FiClock, FiMapPin, FiWifi, FiAlertCircle, FiX, FiNavigation } from 'react-icons/fi';
 import { MdHourglassTop } from 'react-icons/md';
 import PaymentModal from '../components/PaymentModal';
 import './MyTickets.css';
@@ -99,6 +99,11 @@ const MyTickets = () => {
                                                 <span><FiCalendar size={13} />{ev?.startDate ? format(new Date(ev.startDate), 'MMM d, yyyy') : '—'}</span>
                                                 {ev?.startTime && <span><FiClock size={13} />{ev.startTime}</span>}
                                                 <span>{ev?.isOnline ? <FiWifi size={13} /> : <FiMapPin size={13} />}{locationText}</span>
+                                                {!ev?.isOnline && ev?.physicalLocation?.mapLink && (
+                                                    <a href={ev.physicalLocation.mapLink} target="_blank" rel="noopener noreferrer" className="ticket-map-link" style={{ color: 'var(--primary)', textDecoration: 'none', display: 'flex', alignItems: 'center', gap: '0.2rem' }}>
+                                                        <FiNavigation size={12} /> Directions
+                                                    </a>
+                                                )}
                                             </div>
                                         </div>
                                         <div className="ticket-status-badge">

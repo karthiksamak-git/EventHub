@@ -7,7 +7,7 @@ import toast from 'react-hot-toast';
 import {
     FiCalendar, FiMapPin, FiClock, FiUsers, FiWifi, FiGlobe,
     FiHeart, FiShare2, FiEdit, FiMessageCircle, FiArrowLeft,
-    FiCheck, FiX, FiAlertCircle, FiTrash2
+    FiCheck, FiX, FiAlertCircle, FiTrash2, FiNavigation, FiLink
 } from 'react-icons/fi';
 import './EventDetail.css';
 import PaymentModal from '../components/PaymentModal';
@@ -46,7 +46,7 @@ const EventDetail = () => {
         eventsAPI.getOne(id)
             .then(res => {
                 setEvent(res.data.event);
-                if (user) setLiked(res.data.event.likes?.includes(user.id));
+                if (user) setLiked(res.data.event.likes?.includes(user._id) || res.data.event.likes?.includes(user.id));
             })
             .catch(() => navigate('/events'))
             .finally(() => setLoading(false));
@@ -216,6 +216,18 @@ const EventDetail = () => {
                                         Get Tickets
                                     </button>
                                 )}
+                                <div style={{ marginTop: '0.75rem' }}>
+                                    {event.isOnline && event.onlineLink && isAuth && (
+                                        <a href={event.onlineLink} target="_blank" rel="noopener noreferrer" className="btn btn-secondary w-full" style={{ marginBottom: '0.5rem' }}>
+                                            <FiLink size={15} /> Join Event
+                                        </a>
+                                    )}
+                                    {!event.isOnline && event.physicalLocation?.mapLink && (
+                                        <a href={event.physicalLocation.mapLink} target="_blank" rel="noopener noreferrer" className="btn btn-secondary w-full">
+                                            <FiNavigation size={15} /> Get Directions
+                                        </a>
+                                    )}
+                                </div>
                             </div>
 
                             <div className="booking-actions-row">
@@ -299,6 +311,11 @@ const EventDetail = () => {
                                     <div>{[event.physicalLocation?.city, event.physicalLocation?.state, event.physicalLocation?.postalCode].filter(Boolean).join(', ')}</div>
                                     <div style={{ fontWeight: 600 }}>{event.physicalLocation?.country}</div>
                                     {event.physicalLocation?.landmark && <div style={{ color: 'var(--text-3)', fontSize: '0.85rem', marginTop: '0.25rem' }}>Landmark: {event.physicalLocation.landmark}</div>}
+                                    {event.physicalLocation?.mapLink && (
+                                        <a href={event.physicalLocation.mapLink} target="_blank" rel="noopener noreferrer" className="map-link-btn" style={{ display: 'inline-flex', alignItems: 'center', gap: '0.3rem', color: 'var(--primary)', marginTop: '0.5rem', fontWeight: 600, textDecoration: 'none' }}>
+                                            <FiNavigation size={13} /> Open in Maps
+                                        </a>
+                                    )}
                                 </div>
                             </div>
                         </section>

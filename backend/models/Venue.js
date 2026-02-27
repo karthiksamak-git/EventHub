@@ -13,7 +13,7 @@ const VenueSchema = new mongoose.Schema({
         country: { type: String, required: true },
         postalCode: { type: String, default: '' },
         landmark: { type: String, default: '' },
-        // Geographic coordinates (optional, for map integration)
+        mapLink: { type: String, required: true },
         lat: { type: Number, default: null },
         lng: { type: Number, default: null }
     },

@@ -49,13 +49,7 @@ exports.bookTicket = async (req, res) => {
             status = 'active';
             paymentConfirmedAt = new Date();
 
-            const qrData = JSON.stringify({
-                ticketId,
-                eventId: event._id.toString(),
-                eventTitle: event.title,
-                attendeeId: req.user.id,
-                type: ticketTypeName
-            });
+            const qrData = `Event: ${event.title}\nAttendee: ${req.user.name}\nTicket: ${ticketTypeName} (Qty: ${quantity})\nID: ${ticketId}\n\nPlease present this QR code at the event entrance for scanning.`;
             qrCode = await QRCode.toDataURL(qrData);
         }
 
@@ -152,16 +146,7 @@ exports.confirmPayment = async (req, res) => {
         if (ticket.paymentStatus === 'confirmed')
             return res.status(400).json({ success: false, message: 'Payment already confirmed.' });
 
-        const qrData = JSON.stringify({
-            ticketId: ticket.ticketId,
-            eventId: ticket.event._id.toString(),
-            eventTitle: ticket.event.title,
-            attendeeId: ticket.attendee._id.toString(),
-            attendeeName: ticket.attendee.name,
-            type: ticket.ticketType.name,
-            qty: ticket.quantity,
-            confirmedAt: new Date().toISOString()
-        });
+        const qrData = `Event: ${ticket.event.title}\nAttendee: ${ticket.attendee.name}\nTicket: ${ticket.ticketType.name} (Qty: ${ticket.quantity})\nID: ${ticket.ticketId}\n\nPlease present this QR code at the event entrance for scanning.`;
         const qrCode = await QRCode.toDataURL(qrData);
 
         ticket.paymentStatus = 'confirmed';
