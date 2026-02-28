@@ -85,6 +85,7 @@ export const networkAPI = {
 
 export const statsAPI = {
     get: () => API.get('/stats'),
+    getOrganizerStats: () => API.get('/stats/organizer'),
 };
 
 export default API;

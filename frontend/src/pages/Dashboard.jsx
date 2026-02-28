@@ -16,10 +16,11 @@ const Dashboard = () => {
     const [myEvents, setMyEvents] = useState([]);
     const [myTickets, setMyTickets] = useState([]);
     const [attendees, setAttendees] = useState([]);
+    const [organizerStats, setOrganizerStats] = useState({ totalRevenue: 0, totalTicketsSold: 0 });
     const [loading, setLoading] = useState(true);
-    const [upiInput, setUpiInput] = useState(user?.upiId || '');
     const [savingUpi, setSavingUpi] = useState(false);
     const [activeTab, setActiveTab] = useState('overview');
+    const [upiInput, setUpiInput] = useState(user?.upiId || '');
 
     useEffect(() => {
         if (!isAuth) return;
@@ -33,6 +34,11 @@ const Dashboard = () => {
                 setMyTickets(tkRes.data.tickets || []);
 
                 if (user?.role === 'organizer' || user?.role === 'admin') {
+                    // Fetch real revenue and sales stats
+                    statsAPI.getOrganizerStats()
+                        .then(res => setOrganizerStats(res.data.stats))
+                        .catch(() => { });
+
                     const events = evRes.data.events || [];
                     const attendeesAll = [];
                     for (const ev of events.slice(0, 5)) {
@@ -48,7 +54,7 @@ const Dashboard = () => {
             setLoading(false);
         };
         loadData();
-    }, [isAuth]);
+    }, [isAuth, user?.role]);
 
     const handleSaveUpi = async () => {
         if (!upiInput.trim()) { toast.error('UPI ID is required.'); return; }
@@ -80,7 +86,7 @@ const Dashboard = () => {
 
     const now = new Date();
     const upcomingTickets = myTickets.filter(t => t.event && new Date(t.event.startDate) >= now && t.status === 'active');
-    const totalRevenue = myTickets.filter(t => t.status === 'active' && t.paymentStatus === 'confirmed').reduce((s, t) => s + (t.totalAmount || 0), 0);
+
 
     if (loading) return <div className="loading-screen" style={{ paddingTop: '7rem' }}><div className="spinner" /></div>;
 
@@ -120,8 +126,12 @@ const Dashboard = () => {
                             </div>
                             <div className="stat-card">
                                 <div className="stat-icon" style={{ background: 'rgba(78,205,196,0.12)', color: 'var(--accent)' }}><FiUsers size={20} /></div>
-                                <div className="stat-value">{myTickets.filter(t => t.status === 'active').length}</div>
-                                <div className="stat-label">Active Tickets</div>
+                                <div className="stat-value">
+                                    {(user?.role === 'organizer' || user?.role === 'admin')
+                                        ? (organizerStats?.totalTicketsSold || 0)
+                                        : myTickets.filter(t => t.status === 'active').length}
+                                </div>
+                                <div className="stat-label">{(user?.role === 'organizer' || user?.role === 'admin') ? 'Total Tickets Sold' : 'Active Tickets'}</div>
                             </div>
                             <div className="stat-card">
                                 <div className="stat-icon" style={{ background: 'rgba(255,230,109,0.12)', color: 'var(--accent2)' }}><FiTrendingUp size={20} /></div>
@@ -131,7 +141,7 @@ const Dashboard = () => {
                             {(user?.role === 'organizer' || user?.role === 'admin') && (
                                 <div className="stat-card">
                                     <div className="stat-icon" style={{ background: 'rgba(255,107,107,0.12)', color: 'var(--secondary)' }}><FiCreditCard size={20} /></div>
-                                    <div className="stat-value">₹{totalRevenue.toLocaleString()}</div>
+                                    <div className="stat-value">₹{(organizerStats?.totalRevenue || 0).toLocaleString()}</div>
                                     <div className="stat-label">Revenue Collected</div>
                                 </div>
                             )}
