@@ -8,7 +8,7 @@
     "dev": "nodemon server.js"
   },
   "keywords": [],
-  "author": "",
+  "author": "N S Karthik Samak",
   "license": "ISC",
   "dependencies": {
     "bcryptjs": "^2.4.3",
