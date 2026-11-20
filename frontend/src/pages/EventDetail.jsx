@@ -3,6 +3,7 @@ import { useParams, Link, useNavigate } from 'react-router-dom';
 import { eventsAPI, ticketsAPI } from '../services/api';
 import { useAuth } from '../context/auth-context';
 import { format } from 'date-fns';
+import { formatEventDate } from '../utils/format';
 import toast from 'react-hot-toast';
 import {
     FiCalendar, FiMapPin, FiClock, FiUsers, FiWifi, FiGlobe,
@@ -140,7 +141,7 @@ const EventDetail = () => {
                             <div className="event-hero-meta">
                                 <div className="event-meta-item">
                                     <FiCalendar size={15} />
-                                    <span>{format(new Date(event.startDate), 'EEEE, MMMM d, yyyy')}</span>
+                                    <span>{formatEventDate(event.startDate, 'EEEE, MMMM d, yyyy')}</span>
                                 </div>
                                 <div className="event-meta-item">
                                     <FiClock size={15} />
@@ -410,6 +411,33 @@ const EventDetail = () => {
                                 <button className="btn btn-primary" onClick={handleBook} disabled={!selectedTicketType || booking}>
                                     {booking ? 'Processing...' : selectedTicketType?.price === 0 ? 'Confirm Free Ticket' : 'Proceed to Payment'}
                                 </button>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            )}
+
+            { }
+            {bookedTicket && bookedTicket.status === 'active' && (
+                <div className="modal-overlay" onClick={() => setBookedTicket(null)}>
+                    <div className="modal" style={{ maxWidth: '440px', textAlign: 'center' }} onClick={e => e.stopPropagation()}>
+                        <div className="modal-body" style={{ padding: '2rem' }}>
+                            <div style={{ width: 64, height: 64, borderRadius: '50%', background: 'rgba(78,205,196,0.15)', color: 'var(--accent)', display: 'grid', placeItems: 'center', margin: '0 auto 1rem' }}>
+                                <FiCheck size={30} />
+                            </div>
+                            <h3 style={{ marginBottom: '0.5rem' }}>You&apos;re registered</h3>
+                            <p style={{ color: 'var(--text-2)', fontSize: '0.9rem', marginBottom: '1.25rem' }}>
+                                Your ticket for <strong style={{ color: 'var(--text)' }}>{event.title}</strong> is confirmed.
+                                Show the QR code at the entrance to check in.
+                            </p>
+                            <div className="booking-summary" style={{ textAlign: 'left', marginBottom: '1.25rem' }}>
+                                <div className="summary-row"><span>Ticket</span><span>{bookedTicket.ticketType?.name}</span></div>
+                                <div className="summary-row"><span>Quantity</span><span>{bookedTicket.quantity}</span></div>
+                                <div className="summary-row total"><span>Total</span><span>{bookedTicket.totalAmount === 0 ? 'Free' : `₹${bookedTicket.totalAmount?.toLocaleString()}`}</span></div>
+                            </div>
+                            <div style={{ display: 'flex', gap: '0.75rem' }}>
+                                <button className="btn btn-secondary" style={{ flex: 1 }} onClick={() => setBookedTicket(null)}>Keep browsing</button>
+                                <button className="btn btn-primary" style={{ flex: 1 }} onClick={() => navigate('/my-tickets')}>View my tickets</button>
                             </div>
                         </div>
                     </div>

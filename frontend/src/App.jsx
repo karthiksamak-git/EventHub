@@ -1,4 +1,4 @@
-import { BrowserRouter, Routes, Route, Navigate } from 'react-router-dom';
+import { BrowserRouter, Routes, Route, Navigate, useLocation } from 'react-router-dom';
 import { Toaster } from 'react-hot-toast';
 import { AuthProvider } from './context/AuthContext';
 import { useAuth } from './context/auth-context';
@@ -21,19 +21,23 @@ import './index.css';
 
 const ProtectedRoute = ({ children }) => {
   const { isAuth, loading } = useAuth();
+  const location = useLocation();
   if (loading) return <div className="loading-screen"><div className="spinner" /></div>;
-  return isAuth ? children : <Navigate to="/login" replace />;
+  if (isAuth) return children;
+  // Remember where the visitor was going so login can return them there.
+  return <Navigate to="/login" replace state={{ from: location.pathname + location.search }} />;
 };
 
 const AppRoutes = () => {
-  const { isAuth } = useAuth();
   return (
     <>
       <Navbar />
       <Routes>
         <Route path="/" element={<Home />} />
-        <Route path="/login" element={isAuth ? <Navigate to="/" /> : <Login />} />
-        <Route path="/register" element={isAuth ? <Navigate to="/" /> : <Register />} />
+        {/* These pages redirect signed-in visitors themselves, so they can honour
+            the page that originally sent the visitor to sign in. */}
+        <Route path="/login" element={<Login />} />
+        <Route path="/register" element={<Register />} />
         <Route path="/profile/upi-setup" element={<ProtectedRoute><UpiSetup /></ProtectedRoute>} />
         <Route path="/events" element={<EventsList />} />
         <Route path="/events/create" element={<ProtectedRoute><CreateEvent /></ProtectedRoute>} />

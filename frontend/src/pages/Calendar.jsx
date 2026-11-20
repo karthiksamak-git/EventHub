@@ -1,6 +1,7 @@
 import { useState, useEffect } from 'react';
 import { format, startOfMonth, endOfMonth, eachDayOfInterval, isSameDay, isToday, addMonths, subMonths, getDay } from 'date-fns';
 import { eventsAPI } from '../services/api';
+import { eventDay } from '../utils/format';
 import { Link } from 'react-router-dom';
 import { FiChevronLeft, FiChevronRight } from 'react-icons/fi';
 import './Calendar.css';
@@ -39,7 +40,7 @@ const Calendar = () => {
 
     const days = eachDayOfInterval({ start: startOfMonth(currentDate), end: endOfMonth(currentDate) });
     const startDay = getDay(startOfMonth(currentDate));
-    const selectedEvents = selectedDay ? events.filter(e => isSameDay(new Date(e.startDate), selectedDay)) : [];
+    const selectedEvents = selectedDay ? events.filter(e => isSameDay(eventDay(e.startDate), selectedDay)) : [];
 
     return (
         <div className="calendar-page">
@@ -71,7 +72,7 @@ const Calendar = () => {
                             <div className="cal-grid">
                                 {Array(startDay).fill(null).map((_, i) => <div key={`empty-${i}`} className="cal-day empty"></div>)}
                                 {days.map(day => {
-                                    const dayEvents = events.filter(e => isSameDay(new Date(e.startDate), day));
+                                    const dayEvents = events.filter(e => isSameDay(eventDay(e.startDate), day));
                                     const isSelected = selectedDay && isSameDay(day, selectedDay);
                                     return (
                                         <div key={day.toString()} className={`cal-day ${isToday(day) ? 'today' : ''} ${isSelected ? 'selected' : ''} ${dayEvents.length ? 'has-events' : ''}`}

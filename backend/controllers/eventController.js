@@ -55,6 +55,16 @@ exports.getEvent = async (req, res) => {
             .populate('organizer', 'name email avatar accountType organizationName upiId upiVerified bio phone socialLinks website')
             .populate('comments.user', 'name avatar');
         if (!event) return res.status(404).json({ success: false, message: 'Event not found.' });
+
+        // Drafts and cancelled events are private to the organizer (and admins).
+        if (event.status !== 'published') {
+            const organizerId = event.organizer?._id || event.organizer;
+            const isOwner = req.user && organizerId && organizerId.toString() === req.user.id;
+            const isAdmin = req.user?.role === 'admin';
+            if (!isOwner && !isAdmin)
+                return res.status(404).json({ success: false, message: 'Event not found.' });
+        }
+
         res.json({ success: true, event });
     } catch (err) {
         res.status(500).json({ success: false, message: err.message });

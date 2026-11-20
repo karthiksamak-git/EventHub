@@ -3,6 +3,7 @@ import { useParams, Link, useNavigate } from 'react-router-dom';
 import { venuesAPI } from '../services/api';
 import { useAuth } from '../context/auth-context';
 import { format } from 'date-fns';
+import { formatEventDate, eventDay, todayCalendar, isTodayOrLater, pluralize } from '../utils/format';
 import toast from 'react-hot-toast';
 import {
     FiArrowLeft, FiMapPin, FiUsers, FiStar, FiPhone, FiMail,
@@ -93,9 +94,13 @@ const VenueDetail = () => {
     if (loading) return <div className="loading-screen" style={{ paddingTop: '7rem' }}><div className="spinner" /></div>;
     if (!venue) return null;
 
-    const now = new Date();
-    const ongoingEvents = events.filter(e => new Date(e.startDate) <= now && new Date(e.endDate) >= now);
-    const upcomingEvents = events.filter(e => new Date(e.startDate) > now);
+    const today = todayCalendar();
+    const ongoingEvents = events.filter(e => {
+        const start = eventDay(e.startDate);
+        const end = eventDay(e.endDate);
+        return start && end && start < today && end >= today;
+    });
+    const upcomingEvents = events.filter(e => isTodayOrLater(e.startDate));
 
     return (
         <div className="venue-detail-page">
@@ -117,7 +122,7 @@ const VenueDetail = () => {
                                 <div className="venue-rating-row">
                                     <StarRating value={Math.round(venue.rating || 0)} readOnly />
                                     <span style={{ color: 'var(--text-2)', fontSize: '0.9rem' }}>
-                                        {venue.rating?.toFixed(1) || '—'} ({venue.reviews?.length || 0} reviews)
+                                        {venue.rating?.toFixed(1) || '—'} ({pluralize(venue.reviews?.length || 0, 'review')})
                                     </span>
                                     <button className={`venue-like-btn ${liked ? 'active' : ''}`} onClick={handleLike} title={liked ? 'Unlike' : 'Like'}>
                                         <FiHeart fill={liked ? 'currentColor' : 'none'} size={15} />
@@ -204,7 +209,7 @@ const VenueDetail = () => {
                                                 <div className="vev-title">{ev.title}</div>
                                                 <div className="vev-date">
                                                     <FiCalendar size={12} />
-                                                    {format(new Date(ev.startDate), 'MMM d')} – {format(new Date(ev.endDate), 'MMM d, yyyy')}
+                                                    {formatEventDate(ev.startDate, 'MMM d')} – {formatEventDate(ev.endDate, 'MMM d, yyyy')}
                                                     {ev.startTime && ` · ${ev.startTime}`}
                                                 </div>
                                             </Link>
@@ -222,7 +227,7 @@ const VenueDetail = () => {
                                                 <div className="vev-title">{ev.title}</div>
                                                 <div className="vev-date">
                                                     <FiCalendar size={12} />
-                                                    {format(new Date(ev.startDate), 'MMM d, yyyy')}
+                                                    {formatEventDate(ev.startDate)}
                                                     {ev.startTime && ` · ${ev.startTime}`}
                                                 </div>
                                             </Link>

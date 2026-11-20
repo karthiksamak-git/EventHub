@@ -3,6 +3,7 @@ import { Link } from 'react-router-dom';
 import { useAuth } from '../context/auth-context';
 import { eventsAPI, ticketsAPI, authAPI, statsAPI } from '../services/api';
 import { format } from 'date-fns';
+import { formatEventDate, isTodayOrLater } from '../utils/format';
 import toast from 'react-hot-toast';
 import {
     FiCalendar, FiUsers, FiPlusCircle, FiEdit, FiTrendingUp,
@@ -83,8 +84,10 @@ const Dashboard = () => {
         } catch (err) { toast.error(err.response?.data?.message || 'Failed.'); }
     };
 
-    const now = new Date();
-    const upcomingTickets = myTickets.filter(t => t.event && new Date(t.event.startDate) >= now && t.status === 'active');
+    const isOrganizer = user?.role === 'organizer' || user?.role === 'admin';
+    const upcomingTickets = myTickets.filter(t => t.event && t.status === 'active' && isTodayOrLater(t.event.startDate));
+    const upcomingEvents = myEvents.filter(e => e.status !== 'cancelled' && isTodayOrLater(e.startDate));
+    const upcomingCount = isOrganizer ? upcomingEvents.length : upcomingTickets.length;
 
 
     if (loading) return <div className="loading-screen" style={{ paddingTop: '7rem' }}><div className="spinner" /></div>;
@@ -134,8 +137,8 @@ const Dashboard = () => {
                             </div>
                             <div className="stat-card">
                                 <div className="stat-icon" style={{ background: 'rgba(255,230,109,0.12)', color: 'var(--accent2)' }}><FiTrendingUp size={20} /></div>
-                                <div className="stat-value">{upcomingTickets.length}</div>
-                                <div className="stat-label">Upcoming</div>
+                                <div className="stat-value">{upcomingCount}</div>
+                                <div className="stat-label">{isOrganizer ? 'Upcoming Events' : 'Upcoming Tickets'}</div>
                             </div>
                             {(user?.role === 'organizer' || user?.role === 'admin') && (
                                 <div className="stat-card">
@@ -185,7 +188,7 @@ const Dashboard = () => {
                                                 <div className={`status-dot ${e.status === 'published' ? 'green' : e.status === 'cancelled' ? 'red' : 'gray'}`} />
                                                 <div className="dash-item-info">
                                                     <div className="dash-item-title">{e.title}</div>
-                                                    <div className="dash-item-sub">{format(new Date(e.startDate), 'MMM d, yyyy')} &middot; {e.currentAttendees} attendees</div>
+                                                    <div className="dash-item-sub">{formatEventDate(e.startDate)} &middot; {e.currentAttendees} attendees</div>
                                                 </div>
                                                 <Link to={`/events/${e._id}/edit`} className="btn btn-secondary btn-sm"><FiEdit size={13} /></Link>
                                             </div>

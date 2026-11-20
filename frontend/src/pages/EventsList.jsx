@@ -3,6 +3,7 @@ import { useSearchParams, Link } from 'react-router-dom';
 import { eventsAPI } from '../services/api';
 import EventCard from '../components/EventCard';
 import { FiSearch, FiFilter, FiX, FiPlus } from 'react-icons/fi';
+import { pluralize } from '../utils/format';
 import './EventsList.css';
 
 const CATEGORIES = [
@@ -65,7 +66,7 @@ const EventsList = () => {
                 <div className="events-list-header">
                     <div>
                         <h1>Discover <span className="gradient-text">Events</span></h1>
-                        <p>{total} events found{filters.category ? ` in ${filters.category}` : ''}</p>
+                        <p>{pluralize(total, 'event')} found{filters.category ? ` in ${filters.category}` : ''}</p>
                     </div>
                     <Link to="/events/create" className="btn btn-primary"><FiPlus /> Create Event</Link>
                 </div>

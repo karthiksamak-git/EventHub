@@ -1,7 +1,10 @@
 import axios from 'axios';
 
+// Default to a same-origin `/api` path so the Vite dev proxy (and any reverse
+// proxy in production) handles the backend. Point VITE_API_URL at an absolute
+// API origin only when the frontend and API are hosted separately.
 const API = axios.create({
-    baseURL: import.meta.env.VITE_API_URL || 'http://localhost:5000/api',
+    baseURL: import.meta.env.VITE_API_URL || '/api',
     timeout: 15000,
 });
 

@@ -1,7 +1,7 @@
 import { useState, useEffect } from 'react';
 import { Link } from 'react-router-dom';
 import { ticketsAPI, eventsAPI } from '../services/api';
-import { format } from 'date-fns';
+import { formatEventDate } from '../utils/format';
 import toast from 'react-hot-toast';
 import { FiCalendar, FiClock, FiMapPin, FiWifi, FiAlertCircle, FiX, FiNavigation } from 'react-icons/fi';
 import { MdHourglassTop } from 'react-icons/md';
@@ -96,7 +96,7 @@ const MyTickets = () => {
                                             <div className="ticket-category">{ev?.category}</div>
                                             <h3 className="ticket-event-title">{ev?.title || 'Event'}</h3>
                                             <div className="ticket-meta">
-                                                <span><FiCalendar size={13} />{ev?.startDate ? format(new Date(ev.startDate), 'MMM d, yyyy') : '—'}</span>
+                                                <span><FiCalendar size={13} />{formatEventDate(ev?.startDate) || '—'}</span>
                                                 {ev?.startTime && <span><FiClock size={13} />{ev.startTime}</span>}
                                                 <span>{ev?.isOnline ? <FiWifi size={13} /> : <FiMapPin size={13} />}{locationText}</span>
                                                 {!ev?.isOnline && ev?.physicalLocation?.mapLink && (

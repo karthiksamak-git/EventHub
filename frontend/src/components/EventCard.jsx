@@ -1,5 +1,5 @@
-import { format } from 'date-fns';
 import { Link } from 'react-router-dom';
+import { formatEventDate } from '../utils/format';
 import { FiCalendar, FiMapPin, FiUsers, FiHeart, FiClock, FiWifi } from 'react-icons/fi';
 import './EventCard.css';
 
@@ -42,7 +42,7 @@ const EventCard = ({ event }) => {
                 <div className="event-card-meta">
                     <div className="meta-item">
                         <FiCalendar size={13} />
-                        <span>{format(new Date(startDate), 'MMM d, yyyy')}</span>
+                        <span>{formatEventDate(startDate)}</span>
                     </div>
                     <div className="meta-item">
                         <FiClock size={13} />

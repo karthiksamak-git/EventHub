@@ -8,18 +8,24 @@ dotenv.config();
 
 const app = express();
 
+// CLIENT_URL / CLIENT_URLS accept a comma-separated list so preview deployments,
+// custom domains and localhost can all be allowed at once.
+const parseOrigins = (value = '') => value.split(',').map(o => o.trim()).filter(Boolean);
+
 const allowedOrigins = [
-  'http://localhost:3000',
-  'http://localhost:5173',
-  process.env.CLIENT_URL,
-].filter(Boolean);
+  ...(process.env.NODE_ENV === 'production' ? [] : ['http://localhost:3000', 'http://localhost:5173']),
+  ...parseOrigins(process.env.CLIENT_URL),
+  ...parseOrigins(process.env.CLIENT_URLS),
+];
 
 app.use(cors({
   origin: (origin, callback) => {
     if (!origin || allowedOrigins.includes(origin) || origin.endsWith('.vercel.app')) {
       callback(null, true);
     } else {
-      callback(new Error('Not allowed by CORS'));
+      const err = new Error(`Origin ${origin} is not allowed by CORS.`);
+      err.status = 403;
+      callback(err);
     }
   },
   credentials: true,

@@ -93,7 +93,8 @@ After `npm run seed` (password `password123` for all):
 | `JWT_SECRET` | yes | Signing secret for access tokens |
 | `JWT_EXPIRE` | no | Token lifetime, default `7d` |
 | `PORT` | no | Server port, default `5000` |
-| `CLIENT_URL` | no | Frontend origin allowed by CORS |
+| `CLIENT_URL` | no | Frontend origin(s) allowed by CORS — comma-separated, e.g. `https://app.example.com,https://app-git-preview.vercel.app` |
+| `CLIENT_URLS` | no | Additional allowed origins (same comma-separated format), merged with `CLIENT_URL` |
 | `NODE_ENV` | no | `production` on Vercel (serverless export mode) |
 
 ### Frontend (`frontend/.env.local`)
