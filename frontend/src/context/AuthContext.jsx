@@ -1,22 +1,21 @@
-import { createContext, useContext, useState, useEffect } from 'react';
+import { useState, useEffect } from 'react';
 import { authAPI } from '../services/api';
-
-const AuthContext = createContext(null);
+import { AuthContext } from './auth-context';
 
 export const AuthProvider = ({ children }) => {
     const [user, setUser] = useState(null);
-    const [loading, setLoading] = useState(true);
+    // Start in the loading state only when a session token exists, so a signed-out
+    // visitor never renders an unnecessary spinner.
+    const [loading, setLoading] = useState(() => Boolean(localStorage.getItem('token')));
 
     useEffect(() => {
         const token = localStorage.getItem('token');
-        if (token) {
-            authAPI.getMe()
-                .then(res => setUser(res.data.user))
-                .catch(() => localStorage.removeItem('token'))
-                .finally(() => setLoading(false));
-        } else {
-            setLoading(false);
-        }
+        if (!token) return;
+
+        authAPI.getMe()
+            .then(res => setUser(res.data.user))
+            .catch(() => localStorage.removeItem('token'))
+            .finally(() => setLoading(false));
     }, []);
 
     const login = async (email, password) => {
@@ -55,8 +54,4 @@ export const AuthProvider = ({ children }) => {
     );
 };
 
-export const useAuth = () => {
-    const ctx = useContext(AuthContext);
-    if (!ctx) throw new Error('useAuth must be used within AuthProvider');
-    return ctx;
-};
+export default AuthProvider;

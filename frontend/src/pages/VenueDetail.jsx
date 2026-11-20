@@ -1,7 +1,7 @@
 import { useState, useEffect } from 'react';
 import { useParams, Link, useNavigate } from 'react-router-dom';
 import { venuesAPI } from '../services/api';
-import { useAuth } from '../context/AuthContext';
+import { useAuth } from '../context/auth-context';
 import { format } from 'date-fns';
 import toast from 'react-hot-toast';
 import {
@@ -60,7 +60,7 @@ const VenueDetail = () => {
                 navigate('/venues');
             })
             .finally(() => setLoading(false));
-    }, [id]);
+    }, [id, navigate, user]);
 
     const handleReview = async (e) => {
         e.preventDefault();

@@ -1,7 +1,7 @@
 import { useState, useEffect } from 'react';
 import { useNavigate, useParams, Link } from 'react-router-dom';
 import { eventsAPI, venuesAPI } from '../services/api';
-import { useAuth } from '../context/AuthContext';
+import { useAuth } from '../context/auth-context';
 import toast from 'react-hot-toast';
 import { FiArrowLeft, FiPlus, FiX, FiAlertCircle, FiWifi, FiMapPin, FiNavigation } from 'react-icons/fi';
 import './CreateEvent.css';
@@ -30,6 +30,7 @@ const CreateEvent = () => {
 
     const [loading, setLoading] = useState(false);
     const [tagInput, setTagInput] = useState('');
+    const [venues, setVenues] = useState([]);
     const [form, setForm] = useState({
         title: '',
         description: '',
@@ -80,10 +81,10 @@ const CreateEvent = () => {
                 })
                 .catch(() => navigate('/events'));
         }
-        venuesAPI.getAll().then(res => setVenues(res.data.venues || [])).catch(() => { });
-    }, [id]);
-
-    const [venues, setVenues] = useState([]);
+        venuesAPI.getAll()
+            .then(res => setVenues(res.data.venues || []))
+            .catch(() => { /* venue dropdown stays empty */ });
+    }, [id, isEdit, navigate]);
 
     const set = (key, val) => setForm(p => ({ ...p, [key]: val }));
     const setLocation = (key, val) => setForm(p => ({ ...p, physicalLocation: { ...p.physicalLocation, [key]: val } }));

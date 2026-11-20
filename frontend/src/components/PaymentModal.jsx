@@ -23,7 +23,7 @@ const PaymentModal = ({ ticket, event, onClose, onPaid }) => {
                 .then(url => setUpiQr(url))
                 .catch(() => { });
         }
-    }, [upiId, amount]);
+    }, [upiId, amount, upiUri]);
 
     const copyUpi = () => {
         navigator.clipboard.writeText(upiId);

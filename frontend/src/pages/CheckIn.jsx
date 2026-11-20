@@ -16,23 +16,28 @@ const CheckIn = () => {
     const [scanning, setScanning] = useState(false);
     const [recentCheckins, setRecentCheckins] = useState([]);
     const [lastScanned, setLastScanned] = useState(null);
+    const [refreshKey, setRefreshKey] = useState(0);
 
     useEffect(() => {
-        eventsAPI.getMyEvents().then(res => setMyEvents(res.data.events || [])).catch(() => { });
+        eventsAPI.getMyEvents()
+            .then(res => setMyEvents(res.data.events || []))
+            .catch(() => { /* dropdown stays empty */ });
     }, []);
 
     useEffect(() => {
-        if (selectedEvent) fetchStats();
-    }, [selectedEvent]);
+        if (!selectedEvent) return undefined;
+        let active = true;
 
-    const fetchStats = async () => {
-        if (!selectedEvent) return;
-        try {
-            const res = await checkinAPI.getStats(selectedEvent);
-            setStats(res.data.stats);
-            setRecentCheckins(res.data.recentCheckins || []);
-        } catch { setStats(null); }
-    };
+        checkinAPI.getStats(selectedEvent)
+            .then(res => {
+                if (!active) return;
+                setStats(res.data.stats);
+                setRecentCheckins(res.data.recentCheckins || []);
+            })
+            .catch(() => { if (active) setStats(null); });
+
+        return () => { active = false; };
+    }, [selectedEvent, refreshKey]);
 
     const handleScan = async (e, forceId = null) => {
         if (e) e.preventDefault();
@@ -46,12 +51,12 @@ const CheckIn = () => {
             try {
                 const parsed = JSON.parse(ticketId);
                 ticketId = parsed.ticketId || ticketId;
-            } catch { }
+            } catch { /* raw ticket ID, not JSON */ }
             const res = await checkinAPI.scan({ ticketId, eventId: selectedEvent });
             toast.success(res.data.message);
             setScanInput('');
             setLastScanned(res.data.ticket);
-            fetchStats();
+            setRefreshKey(k => k + 1);
         } catch (err) {
             toast.error(err.response?.data?.message || 'Check-in failed. Verify the ticket ID.');
             setLastScanned(null);
@@ -74,7 +79,7 @@ const CheckIn = () => {
                 setScanInput(parsed.ticketId);
                 handleScan(null, parsed.ticketId);
             }
-        } catch { }
+        } catch { /* partial input, not JSON yet */ }
     };
 
     return (

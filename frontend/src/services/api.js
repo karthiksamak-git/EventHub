@@ -14,9 +14,15 @@ API.interceptors.request.use(config => {
 API.interceptors.response.use(
     res => res,
     err => {
-        if (err.response?.status === 401) {
+        const status = err.response?.status;
+        const url = err.config?.url || '';
+        const isLoginAttempt = url.includes('/auth/login') || url.includes('/auth/register');
+
+        // Only force a sign-out when an existing session is rejected. A failed
+        // login must surface its own error instead of reloading the page.
+        if (status === 401 && !isLoginAttempt && localStorage.getItem('token')) {
             localStorage.removeItem('token');
-            window.location.href = '/login';
+            if (window.location.pathname !== '/login') window.location.href = '/login';
         }
         return Promise.reject(err);
     }
@@ -71,16 +77,17 @@ export const usersAPI = {
 
 export const checkinAPI = {
     scan: (data) => API.post('/checkin/scan', data),
-    getStats: (eventId) => API.get(`/checkin/stats/${eventId}`),
+    getStats: (eventId) => API.get(`/checkin/event/${eventId}/stats`),
 };
 
 export const networkAPI = {
     getSuggestions: () => API.get('/network/suggestions'),
     connect: (userId) => API.post(`/network/connect/${userId}`),
-    accept: (userId) => API.post(`/network/accept/${userId}`),
+    accept: (userId) => API.put(`/network/accept/${userId}`),
+    decline: (userId) => API.put(`/network/decline/${userId}`),
     disconnect: (userId) => API.delete(`/network/disconnect/${userId}`),
     getConnections: () => API.get('/network/connections'),
-    getEventAttendees: (eventId) => API.get(`/network/event/${eventId}`),
+    getEventAttendees: (eventId) => API.get(`/network/attendees/${eventId}`),
 };
 
 export const statsAPI = {

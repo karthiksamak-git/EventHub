@@ -1,13 +1,22 @@
 {
   "name": "eventhub-backend",
   "version": "1.0.0",
-  "description": "EventHub Backend API",
+  "description": "EventHub REST API — events, ticketing, venues and attendee networking",
   "main": "server.js",
   "scripts": {
     "start": "node server.js",
-    "dev": "nodemon server.js"
+    "dev": "nodemon server.js",
+    "seed": "node seed.js"
   },
-  "keywords": [],
+  "engines": {
+    "node": ">=18"
+  },
+  "keywords": [
+    "events",
+    "ticketing",
+    "express",
+    "mongodb"
+  ],
   "author": "N S Karthik Samak",
   "license": "ISC",
   "dependencies": {

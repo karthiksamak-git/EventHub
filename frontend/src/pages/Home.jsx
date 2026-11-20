@@ -38,7 +38,6 @@ const AnimatedCounter = ({ target, isVisible }) => {
 
     useEffect(() => {
         if (!isVisible || !target) return;
-        setCount(0);
         const duration = 1600;
         const steps = 50;
         const increment = target / steps;
@@ -76,8 +75,10 @@ const useTypewriter = () => {
         } else if (deleting && charIdx > 0) {
             timeout = setTimeout(() => { setDisplayed(word.slice(0, charIdx - 1)); setCharIdx(c => c - 1); }, 45);
         } else {
-            setDeleting(false);
-            setWordIdx(i => (i + 1) % WORDS.length);
+            timeout = setTimeout(() => {
+                setDeleting(false);
+                setWordIdx(i => (i + 1) % WORDS.length);
+            }, 250);
         }
         return () => clearTimeout(timeout);
     }, [charIdx, deleting, wordIdx]);
@@ -106,7 +107,6 @@ const Home = () => {
     const [loadingEvents, setLoadingEvents] = useState(true);
     const [stats, setStats] = useState(null);
     const [mousePos, setMousePos] = useState({ x: 0, y: 0 });
-    const [hoveredCategory, setHoveredCategory] = useState(null);
 
     const typedText = useTypewriter();
     const [statsRef, statsInView] = useInView();
@@ -229,8 +229,6 @@ const Home = () => {
                                 to={`/events?category=${cat.name}`}
                                 className="category-card"
                                 style={{ '--cat-color': cat.color, animationDelay: `${i * 0.05}s` }}
-                                onMouseEnter={() => setHoveredCategory(cat.name)}
-                                onMouseLeave={() => setHoveredCategory(null)}
                             >
                                 <div className="category-emoji">{cat.emoji}</div>
                                 <div className="category-label">{cat.label}</div>

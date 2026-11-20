@@ -8,6 +8,9 @@ const protect = async (req, res, next) => {
             token = req.headers.authorization.split(' ')[1];
             const decoded = jwt.verify(token, process.env.JWT_SECRET);
             req.user = await User.findById(decoded.id).select('-password');
+            if (!req.user) return res.status(401).json({ success: false, message: 'Not authorized, account no longer exists' });
+            if (req.user.isActive === false)
+                return res.status(403).json({ success: false, message: 'Your account has been deactivated.' });
             next();
         } catch (err) {
             return res.status(401).json({ success: false, message: 'Not authorized, token failed' });

@@ -1,7 +1,7 @@
 import { useState, useEffect } from 'react';
 import { useParams, Link, useNavigate } from 'react-router-dom';
 import { eventsAPI, ticketsAPI } from '../services/api';
-import { useAuth } from '../context/AuthContext';
+import { useAuth } from '../context/auth-context';
 import { format } from 'date-fns';
 import toast from 'react-hot-toast';
 import {
@@ -55,7 +55,7 @@ const EventDetail = () => {
             })
             .catch(() => navigate('/events'))
             .finally(() => setLoading(false));
-    }, [id]);
+    }, [id, navigate, user]);
 
     const handleLike = async () => {
         if (!isAuth) { toast.error('Please sign in to like events.'); return; }

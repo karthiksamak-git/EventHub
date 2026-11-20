@@ -1,6 +1,6 @@
 import { useState, useEffect } from 'react';
 import { networkAPI, usersAPI } from '../services/api';
-import { useAuth } from '../context/AuthContext';
+import { useAuth } from '../context/auth-context';
 import { Link } from 'react-router-dom';
 import toast from 'react-hot-toast';
 import { FiSearch, FiUserPlus, FiUserCheck, FiUsers, FiX } from 'react-icons/fi';
@@ -28,7 +28,7 @@ const Network = () => {
                     setConnections(res.data.connections || []);
                     setRequests(res.data.requests || []);
                 }
-            } catch { }
+            } catch { /* keep previous lists on failure */ }
             setLoading(false);
         };
         fetchData();
@@ -49,6 +49,14 @@ const Network = () => {
             const res = await networkAPI.getConnections();
             setConnections(res.data.connections || []);
         } catch { toast.error('Failed'); }
+    };
+
+    const handleDecline = async (userId) => {
+        try {
+            await networkAPI.decline(userId);
+            toast.success('Request declined.');
+            setRequests(prev => prev.filter(r => r._id !== userId));
+        } catch (err) { toast.error(err.response?.data?.message || 'Failed'); }
     };
 
     const handleDisconnect = async (userId) => {
@@ -145,7 +153,7 @@ const Network = () => {
                                         </div>
                                         <div className="request-actions">
                                             <button className="btn btn-primary btn-sm" onClick={() => handleAccept(u._id)}>Accept</button>
-                                            <button className="btn btn-secondary btn-sm">Decline</button>
+                                            <button className="btn btn-secondary btn-sm" onClick={() => handleDecline(u._id)}>Decline</button>
                                         </div>
                                     </div>
                                 ))}

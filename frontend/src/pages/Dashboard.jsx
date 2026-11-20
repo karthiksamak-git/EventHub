@@ -1,7 +1,7 @@
 import { useState, useEffect } from 'react';
-import { Link, useNavigate } from 'react-router-dom';
-import { useAuth } from '../context/AuthContext';
-import { eventsAPI, ticketsAPI, authAPI } from '../services/api';
+import { Link } from 'react-router-dom';
+import { useAuth } from '../context/auth-context';
+import { eventsAPI, ticketsAPI, authAPI, statsAPI } from '../services/api';
 import { format } from 'date-fns';
 import toast from 'react-hot-toast';
 import {
@@ -12,7 +12,6 @@ import './Dashboard.css';
 
 const Dashboard = () => {
     const { user, isAuth, updateUser } = useAuth();
-    const navigate = useNavigate();
     const [myEvents, setMyEvents] = useState([]);
     const [myTickets, setMyTickets] = useState([]);
     const [attendees, setAttendees] = useState([]);
@@ -37,7 +36,7 @@ const Dashboard = () => {
                     // Fetch real revenue and sales stats
                     statsAPI.getOrganizerStats()
                         .then(res => setOrganizerStats(res.data.stats))
-                        .catch(() => { });
+                        .catch(() => { /* revenue card simply stays at zero */ });
 
                     const events = evRes.data.events || [];
                     const attendeesAll = [];
@@ -46,11 +45,11 @@ const Dashboard = () => {
                             const tickRes = await ticketsAPI.getEventTickets(ev._id);
                             const validTickets = (tickRes.data.tickets || []).filter(t => t.status !== 'cancelled');
                             validTickets.forEach(t => attendeesAll.push({ ...t, eventTitle: ev.title }));
-                        } catch { }
+                        } catch { /* skip events whose tickets cannot be read */ }
                     }
                     setAttendees(attendeesAll);
                 }
-            } catch { }
+            } catch { /* leave lists empty; the UI shows empty states */ }
             setLoading(false);
         };
         loadData();
@@ -69,7 +68,7 @@ const Dashboard = () => {
 
     const handleConfirmPayment = async (ticketId) => {
         try {
-            const res = await ticketsAPI.confirmPayment(ticketId);
+            await ticketsAPI.confirmPayment(ticketId);
             toast.success('Payment confirmed. Ticket activated.');
             setAttendees(prev => prev.map(t => t._id === ticketId ? { ...t, paymentStatus: 'confirmed', status: 'active' } : t));
         } catch (err) { toast.error(err.response?.data?.message || 'Failed.'); }

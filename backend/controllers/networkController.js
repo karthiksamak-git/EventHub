@@ -5,8 +5,13 @@ const Ticket = require('../models/Ticket');
 exports.getSuggestions = async (req, res) => {
     try {
         const currentUser = await User.findById(req.user.id);
+        const excluded = [
+            ...(currentUser.connections || []),
+            ...(currentUser.connectionRequests || []),
+            currentUser._id
+        ];
         const suggestions = await User.find({
-            _id: { $ne: req.user.id, $nin: currentUser.connections, $nin: currentUser.connectionRequests },
+            _id: { $nin: excluded },
             isActive: true,
             $or: [
                 { interests: { $in: currentUser.interests } },
@@ -48,6 +53,20 @@ exports.acceptConnection = async (req, res) => {
         await currentUser.save();
         await requester.save();
         res.json({ success: true, message: 'Connection accepted' });
+    } catch (err) {
+        res.status(500).json({ success: false, message: err.message });
+    }
+};
+
+exports.declineConnection = async (req, res) => {
+    try {
+        const result = await User.findByIdAndUpdate(
+            req.user.id,
+            { $pull: { connectionRequests: req.params.userId } },
+            { new: true }
+        );
+        if (!result) return res.status(404).json({ success: false, message: 'User not found' });
+        res.json({ success: true, message: 'Connection request declined' });
     } catch (err) {
         res.status(500).json({ success: false, message: err.message });
     }

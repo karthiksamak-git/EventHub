@@ -12,7 +12,9 @@ const CATEGORY_COLORS = {
 
 const EventCard = ({ event }) => {
     const { _id, title, category, startDate, startTime, isOnline, physicalLocation, currentAttendees, maxAttendees, ticketTypes, likes = [], status, coverImage } = event;
-    const lowestPrice = ticketTypes?.length ? Math.min(...ticketTypes.filter(t => t.isActive).map(t => t.price)) : 0;
+    const activeTickets = (ticketTypes || []).filter(t => t.isActive !== false);
+    const lowestPrice = activeTickets.length ? Math.min(...activeTickets.map(t => t.price)) : 0;
+    const spotsLeft = maxAttendees > 0 ? Math.max(maxAttendees - (currentAttendees || 0), 0) : 0;
     const catColor = CATEGORY_COLORS[category] || '#6C63FF';
     const gradientBg = `linear-gradient(135deg, ${catColor}22, ${catColor}08)`;
     const initials = title.split(' ').slice(0, 2).map(w => w[0]).join('').toUpperCase();
@@ -72,9 +74,9 @@ const EventCard = ({ event }) => {
                 {maxAttendees > 0 && (
                     <div className="availability-bar">
                         <div className="progress-bar-container" style={{ height: 4 }}>
-                            <div className="progress-bar" style={{ width: `${Math.min((currentAttendees / maxAttendees) * 100, 100)}%`, background: catColor }} />
+                            <div className="progress-bar" style={{ width: `${Math.min(((currentAttendees || 0) / maxAttendees) * 100, 100)}%`, background: catColor }} />
                         </div>
-                        <span className="availability-text">{maxAttendees - currentAttendees} spots left</span>
+                        <span className="availability-text">{spotsLeft} spots left</span>
                     </div>
                 )}
             </div>

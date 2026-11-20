@@ -1,14 +1,17 @@
-import { useState, useEffect, useCallback } from 'react';
+import { useState, useEffect } from 'react';
 import { useSearchParams, Link } from 'react-router-dom';
 import { eventsAPI } from '../services/api';
 import EventCard from '../components/EventCard';
 import { FiSearch, FiFilter, FiX, FiPlus } from 'react-icons/fi';
 import './EventsList.css';
 
-const CATEGORIES = ['conference', 'workshop', 'concert', 'sports', 'networking', 'festival', 'exhibition', 'other'];
+const CATEGORIES = [
+    'conference', 'workshop', 'concert', 'sports', 'networking', 'festival',
+    'exhibition', 'seminar', 'hackathon', 'webinar', 'other'
+];
 
 const EventsList = () => {
-    const [searchParams, setSearchParams] = useSearchParams();
+    const [searchParams] = useSearchParams();
     const [events, setEvents] = useState([]);
     const [loading, setLoading] = useState(true);
     const [total, setTotal] = useState(0);
@@ -22,28 +25,38 @@ const EventsList = () => {
         endDate: ''
     });
 
-    const fetchEvents = useCallback(async () => {
-        setLoading(true);
-        try {
-            const params = { page, limit: 12, status: 'published' };
-            if (filters.search) params.search = filters.search;
-            if (filters.category) params.category = filters.category;
-            if (filters.startDate) params.startDate = filters.startDate;
-            if (filters.endDate) params.endDate = filters.endDate;
-            const res = await eventsAPI.getAll(params);
-            setEvents(res.data.events || []);
-            setTotal(res.data.total || 0);
-        } catch { setEvents([]); }
-        setLoading(false);
+    useEffect(() => {
+        let active = true;
+
+        const params = { page, limit: 12, status: 'published' };
+        if (filters.search) params.search = filters.search;
+        if (filters.category) params.category = filters.category;
+        if (filters.startDate) params.startFrom = filters.startDate;
+        if (filters.endDate) params.startTo = filters.endDate;
+
+        eventsAPI.getAll(params)
+            .then(res => {
+                if (!active) return;
+                setEvents(res.data.events || []);
+                setTotal(res.data.total || 0);
+            })
+            .catch(() => {
+                if (!active) return;
+                setEvents([]);
+                setTotal(0);
+            })
+            .finally(() => { if (active) setLoading(false); });
+
+        return () => { active = false; };
     }, [filters, page]);
 
-    useEffect(() => { fetchEvents(); }, [fetchEvents]);
-
     const handleFilter = (key, val) => {
+        setLoading(true);
         setFilters(p => ({ ...p, [key]: val }));
         setPage(1);
     };
-    const clearFilters = () => { setFilters({ search: '', category: '', startDate: '', endDate: '' }); setPage(1); };
+    const clearFilters = () => { setLoading(true); setFilters({ search: '', category: '', startDate: '', endDate: '' }); setPage(1); };
+    const goToPage = (next) => { setLoading(true); setPage(next); };
     const hasFilters = Object.values(filters).some(Boolean);
 
     return (
@@ -106,9 +119,9 @@ const EventsList = () => {
                         <div className="grid-3">{events.map(e => <EventCard key={e._id} event={e} />)}</div>
                         {total > 12 && (
                             <div className="pagination">
-                                <button className="btn btn-secondary" disabled={page === 1} onClick={() => setPage(p => p - 1)}>← Previous</button>
+                                <button className="btn btn-secondary" disabled={page === 1} onClick={() => goToPage(page - 1)}>← Previous</button>
                                 <span className="page-info">Page {page} of {Math.ceil(total / 12)}</span>
-                                <button className="btn btn-secondary" disabled={page >= Math.ceil(total / 12)} onClick={() => setPage(p => p + 1)}>Next →</button>
+                                <button className="btn btn-secondary" disabled={page >= Math.ceil(total / 12)} onClick={() => goToPage(page + 1)}>Next →</button>
                             </div>
                         )}
                     </>

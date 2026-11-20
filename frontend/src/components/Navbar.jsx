@@ -1,6 +1,6 @@
 import { useState, useEffect } from 'react';
 import { Link, NavLink, useNavigate } from 'react-router-dom';
-import { useAuth } from '../context/AuthContext';
+import { useAuth } from '../context/auth-context';
 import { FiMenu, FiX, FiCalendar, FiMapPin, FiUsers, FiTag, FiLogOut, FiUser, FiPlusCircle, FiHome } from 'react-icons/fi';
 import { MdQrCodeScanner } from 'react-icons/md';
 import './Navbar.css';

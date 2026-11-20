@@ -1,5 +1,5 @@
-import { useState, useEffect, useCallback } from 'react';
-import { format, startOfMonth, endOfMonth, eachDayOfInterval, isSameDay, isSameMonth, isToday, addMonths, subMonths, getDay } from 'date-fns';
+import { useState, useEffect } from 'react';
+import { format, startOfMonth, endOfMonth, eachDayOfInterval, isSameDay, isToday, addMonths, subMonths, getDay } from 'date-fns';
 import { eventsAPI } from '../services/api';
 import { Link } from 'react-router-dom';
 import { FiChevronLeft, FiChevronRight } from 'react-icons/fi';
@@ -17,19 +17,25 @@ const Calendar = () => {
     const [selectedDay, setSelectedDay] = useState(null);
     const [loading, setLoading] = useState(true);
 
-    const fetchEvents = useCallback(async () => {
-        setLoading(true);
-        try {
-            const res = await eventsAPI.getCalendar({
-                month: currentDate.getMonth() + 1,
-                year: currentDate.getFullYear()
-            });
-            setEvents(res.data.events || []);
-        } catch { setEvents([]); }
-        setLoading(false);
+    useEffect(() => {
+        let active = true;
+
+        eventsAPI.getCalendar({
+            month: currentDate.getMonth() + 1,
+            year: currentDate.getFullYear()
+        })
+            .then(res => { if (active) setEvents(res.data.events || []); })
+            .catch(() => { if (active) setEvents([]); })
+            .finally(() => { if (active) setLoading(false); });
+
+        return () => { active = false; };
     }, [currentDate]);
 
-    useEffect(() => { fetchEvents(); }, [fetchEvents]);
+    const changeMonth = (offset) => {
+        setLoading(true);
+        setSelectedDay(null);
+        setCurrentDate(d => (offset > 0 ? addMonths(d, 1) : subMonths(d, 1)));
+    };
 
     const days = eachDayOfInterval({ start: startOfMonth(currentDate), end: endOfMonth(currentDate) });
     const startDay = getDay(startOfMonth(currentDate));
@@ -46,9 +52,9 @@ const Calendar = () => {
                     <div className="calendar-main glass">
                         {}
                         <div className="cal-header">
-                            <button className="cal-nav-btn" onClick={() => setCurrentDate(d => subMonths(d, 1))}><FiChevronLeft size={20} /></button>
+                            <button className="cal-nav-btn" onClick={() => changeMonth(-1)}><FiChevronLeft size={20} /></button>
                             <h2 className="cal-month">{format(currentDate, 'MMMM yyyy')}</h2>
-                            <button className="cal-nav-btn" onClick={() => setCurrentDate(d => addMonths(d, 1))}><FiChevronRight size={20} /></button>
+                            <button className="cal-nav-btn" onClick={() => changeMonth(1)}><FiChevronRight size={20} /></button>
                         </div>
 
                         {}

@@ -1,6 +1,6 @@
 import { useState } from 'react';
 import { useNavigate, Link } from 'react-router-dom';
-import { useAuth } from '../context/AuthContext';
+import { useAuth } from '../context/auth-context';
 import { authAPI } from '../services/api';
 import toast from 'react-hot-toast';
 import { FiCreditCard, FiCheck, FiArrowRight } from 'react-icons/fi';
