@@ -42,8 +42,25 @@ mobile to desktop.
 Sign in with any [demo account](#demo-accounts) — the password is `password123`. The API runs as a
 single Express function on Vercel and stores its data in MongoDB Atlas.
 
+## Screenshots
+
+<div align="center">
+
+| Landing page | Discover events |
+| :---: | :---: |
+| [<img src="docs/screenshots/01-home.jpg" width="470" alt="EventHub landing page" />](https://event-hub-84xa.vercel.app) | [<img src="docs/screenshots/02-events.jpg" width="470" alt="Event discovery with filters" />](https://event-hub-84xa.vercel.app/events) |
+| **Event detail & ticketing** | **Venue directory** |
+| [<img src="docs/screenshots/06-event-detail.jpg" width="470" alt="Event detail page with ticket tiers" />](https://event-hub-84xa.vercel.app/events) | [<img src="docs/screenshots/03-venues.jpg" width="470" alt="Venue directory" />](https://event-hub-84xa.vercel.app/venues) |
+| **Organizer dashboard** | **One-time UPI onboarding** |
+| [<img src="docs/screenshots/05-dashboard.jpg" width="470" alt="Organizer dashboard with revenue and ticket stats" />](https://event-hub-84xa.vercel.app/dashboard) | [<img src="docs/screenshots/04-upi-onboarding.jpg" width="470" alt="First-time UPI setup screen shown to new accounts" />](https://event-hub-84xa.vercel.app/profile/upi-setup) |
+
+</div>
+
+<sub>Captured from the live app — click a screenshot to open that page.</sub>
+
 ## Table of contents
 
+- [Screenshots](#screenshots)
 - [Features](#features)
 - [Tech stack](#tech-stack)
 - [Architecture](#architecture)
@@ -96,7 +113,7 @@ single Express function on Vercel and stores its data in MongoDB Atlas.
 </tr>
 <tr>
 <td><b>Accounts</b></td>
-<td>Individual or organization profiles · organizer UPI setup · profile and password management · JWT sessions that survive reloads</td>
+<td>Individual or organization profiles · organizer UPI setup, asked once right after sign-up · profile and password management · JWT sessions that survive reloads</td>
 </tr>
 <tr>
 <td><b>Dashboard</b></td>
@@ -203,7 +220,7 @@ stateDiagram-v2
 │   │   ├── services/      # Axios instance and typed API helpers
 │   │   └── utils/         # Date and text formatting helpers
 │   └── vercel.json        # SPA rewrites
-├── docs/                  # README assets
+├── docs/                  # README banner and screenshots
 └── README.md
 ```
 
