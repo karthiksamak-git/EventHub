@@ -2,8 +2,10 @@ import { useState, useEffect } from 'react';
 import { Link } from 'react-router-dom';
 import { venuesAPI } from '../services/api';
 import { useAuth } from '../context/auth-context';
-import { FiSearch, FiMapPin, FiUsers, FiStar, FiPlus, FiX } from 'react-icons/fi';
+import { FiSearch, FiMapPin, FiUsers, FiStar, FiPlus, FiX, FiImage } from 'react-icons/fi';
 import toast from 'react-hot-toast';
+import { mediaUrl } from '../services/api';
+import { compressImage } from '../utils/image';
 import './Venues.css';
 
 const AMENITY_ICONS = { WiFi: '📶', Parking: '🅿️', Catering: '🍽️', Stage: '🎭', 'AV Equipment': '📽️', 'Coffee Bar': '☕', Lighting: '💡', Security: '🔒' };
@@ -16,6 +18,8 @@ const Venues = () => {
     const [showCreate, setShowCreate] = useState(false);
     const [form, setForm] = useState({ name: '', description: '', capacity: '', pricePerDay: '', contactEmail: '', contactPhone: '', amenities: [], address: { line1: '', line2: '', city: '', state: '', country: '', postalCode: '', mapLink: '' } });
     const [creating, setCreating] = useState(false);
+    const [photos, setPhotos] = useState([]);
+    const [uploading, setUploading] = useState(false);
 
     const [refreshKey, setRefreshKey] = useState(0);
 
@@ -35,15 +39,52 @@ const Venues = () => {
         setSearch(value);
     };
 
+    const handlePhotoPick = (fileList) => {
+        const picked = Array.from(fileList || []).filter(f => f.type?.startsWith('image/'));
+        if (!picked.length) return;
+        const room = Math.max(0, 12 - photos.length);
+        if (!room) { toast.error('A venue can have up to 12 photos.'); return; }
+        if (picked.length > room) toast.error(`Only ${room} more photo${room === 1 ? '' : 's'} can be added.`);
+        setPhotos(prev => [...prev, ...picked.slice(0, room).map(file => ({
+            file,
+            preview: URL.createObjectURL(file)
+        }))]);
+    };
+
+    const removePhoto = (preview) => {
+        URL.revokeObjectURL(preview);
+        setPhotos(prev => prev.filter(p => p.preview !== preview));
+    };
+
     const handleCreate = async (e) => {
         e.preventDefault();
         setCreating(true);
         try {
-            await venuesAPI.create(form);
-            toast.success('Venue created!');
+            const res = await venuesAPI.create(form);
+            const created = res.data.venue;
+
+            if (photos.length && created?._id) {
+                setUploading(true);
+                try {
+                    const prepared = [];
+                    for (const photo of photos) prepared.push({ image: await compressImage(photo.file) });
+                    await venuesAPI.addPhotos(created._id, { photos: prepared });
+                    toast.success(`Venue created with ${prepared.length} photo${prepared.length === 1 ? '' : 's'}!`);
+                } catch {
+                    toast.error('Venue created, but the photos could not be uploaded. Add them from the venue page.');
+                } finally {
+                    setUploading(false);
+                }
+            } else {
+                toast.success('Venue created!');
+            }
+
+            photos.forEach(p => URL.revokeObjectURL(p.preview));
+            setPhotos([]);
+            setForm({ name: '', description: '', capacity: '', pricePerDay: '', contactEmail: '', contactPhone: '', amenities: [], address: { line1: '', line2: '', city: '', state: '', country: '', postalCode: '', mapLink: '' } });
             setShowCreate(false);
             setRefreshKey(k => k + 1);
-        } catch (err) { toast.error(err.response?.data?.message || 'Failed'); }
+        } catch (err) { toast.error(err.response?.data?.message || 'Could not create the venue.'); }
         setCreating(false);
     };
 
@@ -74,8 +115,13 @@ const Venues = () => {
                     <div className="venues-grid">
                         {venues.map(venue => (
                             <Link key={venue._id} to={`/venues/${venue._id}`} className="venue-card card">
-                                <div className="venue-card-header" style={{ background: `linear-gradient(135deg, rgba(108,99,255,0.15), rgba(255,107,107,0.08))` }}>
-                                    <div className="venue-emoji">🏛️</div>
+                                <div
+                                    className={`venue-card-header ${venue.coverImage ? 'has-cover' : ''}`}
+                                    style={venue.coverImage ? undefined : { background: 'linear-gradient(135deg, rgba(108,99,255,0.15), rgba(255,107,107,0.08))' }}
+                                >
+                                    {venue.coverImage
+                                        ? <img className="venue-card-cover" src={mediaUrl(venue.coverImage)} alt={venue.name} loading="lazy" />
+                                        : <div className="venue-emoji">🏛️</div>}
                                     <div className="venue-rating"><FiStar fill="currentColor" size={12} /> {venue.rating?.toFixed(1) || '—'}</div>
                                 </div>
                                 <div className="venue-card-body">
@@ -130,6 +176,33 @@ const Venues = () => {
                                 <div className="form-group"><label className="form-label">Contact Phone</label><input type="tel" className="form-input" placeholder="+91 XXXXX XXXXX" value={form.contactPhone} onChange={e => setForm(p => ({ ...p, contactPhone: e.target.value }))} /></div>
                             </div>
                             <div className="form-group" style={{ marginBottom: '1rem' }}>
+                                <label className="form-label">Photos <span style={{ color: 'var(--text-3)', fontWeight: 400 }}>(optional, up to 12)</span></label>
+                                <p className="field-hint" style={{ marginBottom: '0.5rem' }}>
+                                    The first photo becomes the venue cover. Images are optimised automatically.
+                                </p>
+                                <div className="photo-picker">
+                                    {photos.map(p => (
+                                        <div key={p.preview} className="photo-picker-item">
+                                            <img src={p.preview} alt="Selected venue" />
+                                            <button type="button" className="photo-picker-remove" onClick={() => removePhoto(p.preview)} aria-label="Remove photo">✕</button>
+                                        </div>
+                                    ))}
+                                    {photos.length < 12 && (
+                                        <label className="photo-picker-add">
+                                            <FiImage size={18} />
+                                            <span>Add photos</span>
+                                            <input
+                                                type="file"
+                                                accept="image/*"
+                                                multiple
+                                                hidden
+                                                onChange={e => { handlePhotoPick(e.target.files); e.target.value = ''; }}
+                                            />
+                                        </label>
+                                    )}
+                                </div>
+                            </div>
+                            <div className="form-group" style={{ marginBottom: '1rem' }}>
                                 <label className="form-label">Amenities</label>
                                 <div className="amenities-select">
                                     {AMENITIES.map(a => (
@@ -139,7 +212,9 @@ const Venues = () => {
                                     ))}
                                 </div>
                             </div>
-                            <button type="submit" className="btn btn-primary w-full" disabled={creating}>{creating ? 'Creating...' : '✓ Create Venue'}</button>
+                            <button type="submit" className="btn btn-primary w-full" disabled={creating || uploading}>
+                                {uploading ? 'Uploading photos…' : creating ? 'Creating…' : '✓ Create Venue'}
+                            </button>
                         </form>
                     </div>
                 </div>

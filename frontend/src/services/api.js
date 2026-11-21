@@ -3,10 +3,20 @@ import axios from 'axios';
 // Default to a same-origin `/api` path so the Vite dev proxy (and any reverse
 // proxy in production) handles the backend. Point VITE_API_URL at an absolute
 // API origin only when the frontend and API are hosted separately.
+export const apiBase = (import.meta.env.VITE_API_URL || '/api').replace(/\/$/, '');
+
 const API = axios.create({
-    baseURL: import.meta.env.VITE_API_URL || '/api',
+    baseURL: apiBase,
     timeout: 15000,
 });
+
+// Turns an API-relative media path (e.g. a venue photo) into a URL the browser
+// can load, including when the API lives on a different origin.
+export const mediaUrl = (path) => {
+    if (!path) return '';
+    if (/^https?:\/\//i.test(path) || path.startsWith('data:') || path.startsWith('blob:')) return path;
+    return `${apiBase}${path.startsWith('/') ? '' : '/'}${path}`;
+};
 
 API.interceptors.request.use(config => {
     const token = localStorage.getItem('token');
@@ -71,6 +81,9 @@ export const venuesAPI = {
     delete: (id) => API.delete(`/venues/${id}`),
     addReview: (id, data) => API.post(`/venues/${id}/review`, data),
     like: (id) => API.post(`/venues/${id}/like`),
+    addPhotos: (id, payload) => API.post(`/venues/${id}/photos`, payload, { timeout: 60000 }),
+    deletePhoto: (id, photoId) => API.delete(`/venues/${id}/photos/${photoId}`),
+    setCover: (id, photoId) => API.put(`/venues/${id}/photos/${photoId}/cover`),
 };
 
 export const usersAPI = {

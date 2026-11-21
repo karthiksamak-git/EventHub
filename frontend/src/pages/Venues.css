@@ -22,6 +22,101 @@
     justify-content: space-between;
     padding: 1rem;
     position: relative;
+    overflow: hidden;
+}
+
+.venue-card-header.has-cover {
+    height: 165px;
+    padding: 0;
+}
+
+.venue-card-header.has-cover .venue-rating {
+    position: absolute;
+    top: 0.6rem;
+    right: 0.6rem;
+    z-index: 1;
+    background: rgba(10, 11, 30, 0.72);
+    backdrop-filter: blur(6px);
+}
+
+.venue-card-cover {
+    width: 100%;
+    height: 100%;
+    object-fit: cover;
+    display: block;
+    transition: transform 0.45s ease;
+}
+
+.venue-card:hover .venue-card-cover {
+    transform: scale(1.05);
+}
+
+/* Photo picker in the create-venue form */
+.photo-picker {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 0.5rem;
+    margin-top: 0.25rem;
+}
+
+.photo-picker-item {
+    position: relative;
+    width: 96px;
+    height: 72px;
+    border-radius: var(--r-md);
+    overflow: hidden;
+    border: 1px solid var(--border);
+}
+
+.photo-picker-item img {
+    width: 100%;
+    height: 100%;
+    object-fit: cover;
+    display: block;
+}
+
+.photo-picker-remove {
+    position: absolute;
+    top: 3px;
+    right: 3px;
+    width: 20px;
+    height: 20px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    border: none;
+    border-radius: 50%;
+    background: rgba(10, 11, 30, 0.8);
+    color: #fff;
+    font-size: 0.65rem;
+    cursor: pointer;
+}
+
+.photo-picker-remove:hover {
+    background: var(--danger, #ff4757);
+}
+
+.photo-picker-add {
+    width: 96px;
+    height: 72px;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    gap: 0.25rem;
+    border: 1px dashed var(--border-hover);
+    border-radius: var(--r-md);
+    color: var(--text-3);
+    font-size: 0.7rem;
+    cursor: pointer;
+    transition: var(--t);
+    text-align: center;
+}
+
+.photo-picker-add:hover {
+    border-color: var(--primary);
+    color: var(--primary);
+    background: rgba(108, 99, 255, 0.06);
 }
 
 .venue-emoji {

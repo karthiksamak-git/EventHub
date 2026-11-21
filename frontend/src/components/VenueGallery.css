@@ -1,0 +1,323 @@
+/* VenueGallery.css — gallery, lightbox and photo manager */
+
+.venue-gallery {
+    display: flex;
+    flex-direction: column;
+    gap: 0.75rem;
+}
+
+.venue-gallery-main {
+    position: relative;
+    border-radius: var(--r-lg);
+    overflow: hidden;
+    border: 1px solid var(--border);
+    background: var(--bg-card);
+    aspect-ratio: 16 / 9;
+}
+
+.venue-gallery-main img {
+    width: 100%;
+    height: 100%;
+    object-fit: cover;
+    display: block;
+    cursor: zoom-in;
+    transition: transform 0.4s ease;
+}
+
+.venue-gallery-main:hover img {
+    transform: scale(1.02);
+}
+
+.gallery-nav {
+    position: absolute;
+    top: 50%;
+    transform: translateY(-50%);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    width: 38px;
+    height: 38px;
+    border-radius: 50%;
+    border: 1px solid rgba(255, 255, 255, 0.2);
+    background: rgba(10, 11, 30, 0.65);
+    color: #fff;
+    cursor: pointer;
+    backdrop-filter: blur(6px);
+    transition: var(--t);
+}
+
+.gallery-nav:hover {
+    background: var(--primary);
+    border-color: var(--primary);
+}
+
+.gallery-nav.prev {
+    left: 0.75rem;
+}
+
+.gallery-nav.next {
+    right: 0.75rem;
+}
+
+.gallery-counter {
+    position: absolute;
+    bottom: 0.75rem;
+    right: 0.75rem;
+    padding: 0.2rem 0.6rem;
+    border-radius: var(--r-full);
+    background: rgba(10, 11, 30, 0.7);
+    color: #fff;
+    font-size: 0.75rem;
+    font-weight: 600;
+}
+
+.venue-gallery-thumbs {
+    display: grid;
+    grid-template-columns: repeat(auto-fill, minmax(84px, 1fr));
+    gap: 0.5rem;
+}
+
+.venue-gallery-thumb {
+    padding: 0;
+    border: 2px solid transparent;
+    border-radius: var(--r-md);
+    overflow: hidden;
+    background: var(--bg-card);
+    cursor: pointer;
+    aspect-ratio: 4 / 3;
+    transition: var(--t);
+}
+
+.venue-gallery-thumb img {
+    width: 100%;
+    height: 100%;
+    object-fit: cover;
+    display: block;
+}
+
+.venue-gallery-thumb:hover {
+    border-color: var(--border-hover);
+}
+
+.venue-gallery-thumb.active {
+    border-color: var(--primary);
+}
+
+/* Lightbox */
+.gallery-lightbox {
+    position: fixed;
+    inset: 0;
+    z-index: 2000;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    padding: 2rem;
+    background: rgba(5, 6, 16, 0.92);
+    backdrop-filter: blur(6px);
+    animation: gallery-fade 0.2s ease;
+}
+
+.gallery-lightbox img {
+    max-width: min(1100px, 100%);
+    max-height: 85vh;
+    border-radius: var(--r-md);
+    object-fit: contain;
+    box-shadow: 0 24px 60px rgba(0, 0, 0, 0.5);
+}
+
+.gallery-close {
+    position: absolute;
+    top: 1.25rem;
+    right: 1.25rem;
+    width: 42px;
+    height: 42px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    border-radius: 50%;
+    border: 1px solid rgba(255, 255, 255, 0.2);
+    background: rgba(255, 255, 255, 0.08);
+    color: #fff;
+    cursor: pointer;
+}
+
+.gallery-close:hover {
+    background: var(--primary);
+}
+
+.gallery-caption {
+    position: absolute;
+    bottom: 1.5rem;
+    left: 50%;
+    transform: translateX(-50%);
+    color: #fff;
+    font-size: 0.9rem;
+    background: rgba(10, 11, 30, 0.7);
+    padding: 0.35rem 0.9rem;
+    border-radius: var(--r-full);
+}
+
+@keyframes gallery-fade {
+    from { opacity: 0; }
+    to { opacity: 1; }
+}
+
+/* Photo manager */
+.photo-manager {
+    border: 1px dashed var(--border-hover);
+    border-radius: var(--r-lg);
+    padding: 1.25rem;
+    background: rgba(108, 99, 255, 0.04);
+}
+
+.photo-manager-head {
+    display: flex;
+    align-items: flex-start;
+    justify-content: space-between;
+    gap: 1rem;
+    flex-wrap: wrap;
+    margin-bottom: 0.75rem;
+}
+
+.photo-manager-head h3 {
+    display: flex;
+    align-items: center;
+    gap: 0.5rem;
+    font-size: 0.95rem;
+    margin: 0 0 0.25rem;
+}
+
+.photo-manager-hint {
+    font-size: 0.78rem;
+    color: var(--text-3);
+    margin: 0;
+    max-width: 46ch;
+}
+
+.photo-link-form {
+    display: flex;
+    align-items: center;
+    gap: 0.5rem;
+    margin-bottom: 1rem;
+    color: var(--text-3);
+}
+
+.photo-link-form .form-input {
+    flex: 1;
+    font-size: 0.85rem;
+    padding: 0.5rem 0.75rem;
+}
+
+.photo-manager-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fill, minmax(120px, 1fr));
+    gap: 0.6rem;
+}
+
+.photo-manager-item {
+    position: relative;
+    border-radius: var(--r-md);
+    overflow: hidden;
+    border: 1px solid var(--border);
+    aspect-ratio: 4 / 3;
+    background: var(--bg-card);
+}
+
+.photo-manager-item.is-cover {
+    border-color: var(--primary);
+}
+
+.photo-manager-item img {
+    width: 100%;
+    height: 100%;
+    object-fit: cover;
+    display: block;
+}
+
+.photo-cover-badge {
+    position: absolute;
+    top: 0.35rem;
+    left: 0.35rem;
+    display: flex;
+    align-items: center;
+    gap: 0.25rem;
+    padding: 0.15rem 0.45rem;
+    border-radius: var(--r-full);
+    background: var(--primary);
+    color: #fff;
+    font-size: 0.65rem;
+    font-weight: 700;
+}
+
+.photo-manager-item-actions {
+    position: absolute;
+    inset: auto 0 0 0;
+    display: flex;
+    justify-content: flex-end;
+    gap: 0.25rem;
+    padding: 0.3rem;
+    background: linear-gradient(to top, rgba(5, 6, 16, 0.85), transparent);
+    opacity: 0;
+    transition: var(--t);
+}
+
+.photo-manager-item:hover .photo-manager-item-actions,
+.photo-manager-item:focus-within .photo-manager-item-actions {
+    opacity: 1;
+}
+
+.photo-manager-item-actions button {
+    width: 26px;
+    height: 26px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    border-radius: 6px;
+    border: 1px solid rgba(255, 255, 255, 0.18);
+    background: rgba(255, 255, 255, 0.12);
+    color: #fff;
+    cursor: pointer;
+}
+
+.photo-manager-item-actions button:hover {
+    background: var(--primary);
+}
+
+.photo-manager-item-actions button.danger:hover {
+    background: var(--danger, #ff4757);
+}
+
+.photo-manager-empty {
+    display: flex;
+    align-items: center;
+    gap: 0.5rem;
+    padding: 1.5rem;
+    justify-content: center;
+    color: var(--text-3);
+    font-size: 0.85rem;
+    border: 1px dashed var(--border);
+    border-radius: var(--r-md);
+}
+
+/* Venue card cover */
+.venue-card-cover {
+    width: 100%;
+    height: 100%;
+    object-fit: cover;
+    display: block;
+}
+
+.venue-card-header.has-cover {
+    height: 165px;
+    padding: 0;
+}
+
+@media (max-width: 640px) {
+    .venue-gallery-main {
+        aspect-ratio: 4 / 3;
+    }
+
+    .gallery-lightbox {
+        padding: 0.75rem;
+    }
+}

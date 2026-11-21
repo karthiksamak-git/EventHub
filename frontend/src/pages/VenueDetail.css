@@ -17,6 +17,19 @@
     background: linear-gradient(135deg, rgba(108, 99, 255, 0.12), rgba(255, 107, 107, 0.06));
 }
 
+/* Cover photo behind the hero, dimmed so the title stays readable. */
+.venue-hero-bg.has-cover {
+    background-size: cover;
+    background-position: center;
+}
+
+.venue-hero-bg.has-cover::after {
+    content: '';
+    position: absolute;
+    inset: 0;
+    background: linear-gradient(180deg, rgba(10, 11, 30, 0.78), rgba(10, 11, 30, 0.94));
+}
+
 .venue-hero-content {
     display: flex;
     align-items: flex-start;

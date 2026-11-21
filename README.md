@@ -76,6 +76,10 @@ mobile to desktop.
 <td>Venue directory with capacity, amenities, pricing, map links and contact details · star reviews with running average · likes · upcoming and ongoing events per venue</td>
 </tr>
 <tr>
+<td><b>Venue photos</b></td>
+<td>Upload photos straight from the device (optimised in the browser) or add an image link · live gallery with lightbox and keyboard navigation · cover photo selection · up to 12 photos per venue · owner-only management · stored in MongoDB so it works on read-only serverless hosting</td>
+</tr>
+<tr>
 <td><b>Networking</b></td>
 <td>People directory with search · connection requests · accept or decline · connection lists · interest and location-based suggestions</td>
 </tr>
@@ -142,6 +146,9 @@ flowchart LR
   strings; the UI formats them in UTC so the day never shifts for viewers in other timezones.
 - **The API is origin-agnostic.** The frontend calls a relative `/api` path — Vite proxies it in
   development, and a single `VITE_API_URL` points it elsewhere when the apps are hosted separately.
+- **Photos live in MongoDB, not on disk.** Serverless hosts like Vercel have a read-only filesystem,
+  so venue photos are stored in their own collection, downscaled in the browser before upload, and
+  streamed back through a cached public route. No external file service is required.
 
 ## Ticket & payment lifecycle
 
@@ -330,6 +337,10 @@ Base URL: `/api` · Protected routes require `Authorization: Bearer <token>`.
 | `DELETE` | `/venues/:id` | Owner/Admin | Delete a venue |
 | `POST` | `/venues/:id/review` | Auth | Add a star review |
 | `POST` | `/venues/:id/like` | Auth | Toggle like |
+| `POST` | `/venues/:id/photos` | Owner/Admin | Add photos — `{ photos: [{ image }] }` as data URLs, or `{ url }` for an image link |
+| `GET` | `/venues/:id/photos/:photoId` | Public | Serve photo bytes (immutable, cached for a year) |
+| `DELETE` | `/venues/:id/photos/:photoId` | Owner/Admin | Remove a photo |
+| `PUT` | `/venues/:id/photos/:photoId/cover` | Owner/Admin | Make a photo the venue cover |
 
 </details>
 

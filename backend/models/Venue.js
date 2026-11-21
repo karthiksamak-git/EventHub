@@ -20,7 +20,12 @@ const VenueSchema = new mongoose.Schema({
 
     capacity: { type: Number, required: true },
     amenities: [{ type: String }],
+    // Legacy list of external image URLs; kept so older venues still render.
     images: [{ type: String }],
+
+    // Photos are stored in the VenuePhoto collection; the venue only remembers
+    // which one is the cover. See models/VenuePhoto.js for why.
+    coverPhotoId: { type: mongoose.Schema.Types.ObjectId, default: null },
     contactEmail: { type: String, default: '' },
     contactPhone: { type: String, default: '' },
     website: { type: String, default: '' },

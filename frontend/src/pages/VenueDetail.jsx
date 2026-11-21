@@ -1,6 +1,8 @@
 import { useState, useEffect } from 'react';
 import { useParams, Link, useNavigate } from 'react-router-dom';
-import { venuesAPI } from '../services/api';
+import { venuesAPI, mediaUrl } from '../services/api';
+import VenueGallery from '../components/VenueGallery';
+import VenuePhotoManager from '../components/VenuePhotoManager';
 import { useAuth } from '../context/auth-context';
 import { format } from 'date-fns';
 import { formatEventDate, eventDay, todayCalendar, isTodayOrLater, pluralize } from '../utils/format';
@@ -94,6 +96,12 @@ const VenueDetail = () => {
     if (loading) return <div className="loading-screen" style={{ paddingTop: '7rem' }}><div className="spinner" /></div>;
     if (!venue) return null;
 
+    const userId = user?.id || user?._id;
+    const canManageVenue = !!user && (
+        user.role === 'admin' ||
+        (venue.managedBy && String(venue.managedBy._id || venue.managedBy) === String(userId))
+    );
+
     const today = todayCalendar();
     const ongoingEvents = events.filter(e => {
         const start = eventDay(e.startDate);
@@ -106,7 +114,10 @@ const VenueDetail = () => {
         <div className="venue-detail-page">
             {/* Hero */}
             <div className="venue-hero">
-                <div className="venue-hero-bg" />
+                <div
+                    className={`venue-hero-bg ${venue.coverImage ? 'has-cover' : ''}`}
+                    style={venue.coverImage ? { backgroundImage: `url(${mediaUrl(venue.coverImage)})` } : undefined}
+                />
                 <div className="container">
                     <Link to="/venues" className="back-btn"><FiArrowLeft /> Back to Venues</Link>
                     <div className="venue-hero-content">
@@ -148,6 +159,33 @@ const VenueDetail = () => {
 
             <div className="container venue-body">
                 <div className="venue-main">
+                    {/* Photos */}
+                    {(venue.photos?.length > 0 || canManageVenue) && (
+                        <section className="venue-section">
+                            <div className="venue-section-header">
+                                <h2>Photos {venue.photos?.length ? `(${venue.photos.length})` : ''}</h2>
+                            </div>
+
+                            {venue.photos?.length > 0 && (
+                                <VenueGallery photos={venue.photos} name={venue.name} />
+                            )}
+
+                            {canManageVenue && (
+                                <div style={{ marginTop: venue.photos?.length > 0 ? '1rem' : 0 }}>
+                                    <VenuePhotoManager
+                                        venueId={venue._id}
+                                        photos={venue.photos || []}
+                                        onChange={photos => setVenue(prev => ({
+                                            ...prev,
+                                            photos,
+                                            coverImage: photos[0]?.url || ''
+                                        }))}
+                                    />
+                                </div>
+                            )}
+                        </section>
+                    )}
+
                     {/* About */}
                     {venue.description && (
                         <section className="venue-section">
