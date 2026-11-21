@@ -1,7 +1,7 @@
 import { useState, useEffect } from 'react';
 import { format, startOfMonth, endOfMonth, eachDayOfInterval, isSameDay, isToday, addMonths, subMonths, getDay } from 'date-fns';
 import { eventsAPI } from '../services/api';
-import { eventDay } from '../utils/format';
+import { eventDay, formatEventDate } from '../utils/format';
 import { Link } from 'react-router-dom';
 import { FiChevronLeft, FiChevronRight } from 'react-icons/fi';
 import './Calendar.css';
@@ -141,7 +141,7 @@ const Calendar = () => {
                                     <div className="side-event-dot" style={{ background: CATEGORY_COLORS[e.category] }}></div>
                                     <div>
                                         <div className="side-event-title">{e.title}</div>
-                                        <div className="side-event-date">{format(new Date(e.startDate), 'MMM d')}</div>
+                                        <div className="side-event-date">{formatEventDate(e.startDate, 'MMM d')}</div>
                                     </div>
                                 </Link>
                             ))}
