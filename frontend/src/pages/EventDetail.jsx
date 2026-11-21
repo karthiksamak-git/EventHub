@@ -109,7 +109,8 @@ const EventDetail = () => {
     if (loading) return <div className="loading-screen" style={{ paddingTop: '7rem' }}><div className="spinner" /></div>;
     if (!event) return null;
 
-    const isOrganizer = user?.id === event.organizer?._id;
+    // The API returns Mongo's `_id`; older sessions only carried `id`.
+    const isOrganizer = !!user && String(user.id || user._id) === String(event.organizer?._id);
     const totalTickets = event.ticketTypes?.reduce((s, t) => s + t.quantity, 0) || 0;
     const availableTickets = event.ticketTypes?.reduce((s, t) => s + (t.quantity - t.sold), 0) || 0;
     const attendancePercent = totalTickets > 0 ? Math.round((event.currentAttendees / totalTickets) * 100) : 0;
