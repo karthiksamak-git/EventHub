@@ -31,6 +31,17 @@ with other people in the community.
 Built with **JWT authentication**, **role-aware authorization**, and a design system that works from
 mobile to desktop.
 
+## Live deployment
+
+| App | URL |
+| --- | --- |
+| Web app | https://event-hub-84xa.vercel.app |
+| REST API | https://event-hub-six-theta.vercel.app/api |
+| Health check | https://event-hub-six-theta.vercel.app/api/health |
+
+Sign in with any [demo account](#demo-accounts) — the password is `password123`. The API runs as a
+single Express function on Vercel and stores its data in MongoDB Atlas.
+
 ## Table of contents
 
 - [Features](#features)
@@ -416,6 +427,19 @@ Both halves deploy to **Vercel** from the same repository — set the root direc
 
 > After the frontend gets its final URL, add it to the backend's `CLIENT_URL` — otherwise browser
 > writes (signup, booking, reviews) will be rejected by CORS while reads still work.
+
+### How this repository is deployed
+
+| Project | Root directory | Environment variables |
+| --- | --- | --- |
+| `event-hub` (API) | `backend` | `MONGO_URI`, `JWT_SECRET`, `CLIENT_URL` |
+| `event-hub-84xa` (web) | `frontend` | `VITE_API_URL=https://event-hub-six-theta.vercel.app/api` |
+
+`backend/api/index.js` is the serverless entry point; `backend/vercel.json` rewrites every request to
+it, and `server.js` only binds a port outside production.
+
+The database is a MongoDB Atlas free cluster (512 MB). Photos are stored in MongoDB rather than on
+disk, because Vercel functions have a read-only filesystem.
 
 ## Security notes
 
