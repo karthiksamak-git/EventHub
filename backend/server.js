@@ -45,6 +45,12 @@ const connectDB = async () => {
   });
 };
 
+// Health check is intentionally declared before the database middleware: a probe
+// should report whether the function is alive even if the database is unreachable.
+app.get('/api/health', (req, res) =>
+  res.json({ status: 'OK', message: 'EventHub API is running', timestamp: new Date().toISOString() })
+);
+
 app.use(async (req, res, next) => {
   try {
     await connectDB();
@@ -63,10 +69,6 @@ app.use('/api/users', require('./routes/users'));
 app.use('/api/checkin', require('./routes/checkin'));
 app.use('/api/network', require('./routes/network'));
 app.use('/api/stats', require('./routes/stats'));
-
-app.get('/api/health', (req, res) =>
-  res.json({ status: 'OK', message: 'EventHub API is running', timestamp: new Date().toISOString() })
-);
 
 app.use((req, res) => res.status(404).json({ success: false, message: 'Route not found.' }));
 
