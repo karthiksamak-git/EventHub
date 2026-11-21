@@ -2,15 +2,27 @@ import { useState } from 'react';
 import { useNavigate, Link } from 'react-router-dom';
 import { useAuth } from '../context/auth-context';
 import { authAPI } from '../services/api';
+import { hasSeenUpiPrompt, markUpiPromptSeen } from '../utils/upiOnboarding';
 import toast from 'react-hot-toast';
-import { FiCreditCard, FiCheck, FiArrowRight } from 'react-icons/fi';
+import { FiCreditCard, FiCheck, FiArrowRight, FiInfo } from 'react-icons/fi';
 import './UpiSetup.css';
 
 const UpiSetup = () => {
     const { user, updateUser } = useAuth();
     const navigate = useNavigate();
-    const [upiId, setUpiId] = useState(user?.upiId || '');
+    // A null draft means "show the saved value"; typing takes over until it is saved.
+    const [upiDraft, setUpiDraft] = useState(null);
+    const upiId = upiDraft ?? user?.upiId ?? '';
+    const setUpiId = (value) => setUpiDraft(value);
     const [loading, setLoading] = useState(false);
+
+    // First-time prompt: decided once on arrival, and remembered so it never
+    // appears again for this account (including after a reload or a skip).
+    const [onboarding] = useState(() => {
+        if (!user?.id || user.upiId || hasSeenUpiPrompt(user.id)) return false;
+        markUpiPromptSeen(user.id);
+        return true;
+    });
 
     const handleSubmit = async (e) => {
         e.preventDefault();
@@ -18,14 +30,17 @@ const UpiSetup = () => {
         setLoading(true);
         try {
             const res = await authAPI.setUpiId(upiId.trim());
-            updateUser({ upiId: res.data.user.upiId });
-            toast.success('UPI ID saved. You can now create paid events.');
-            navigate('/dashboard');
+            setUpiDraft(res.data.user.upiId);
+            updateUser({ upiId: res.data.user.upiId, role: res.data.user.role });
+            toast.success('UPI ID saved.');
+            navigate('/dashboard', { replace: true });
         } catch (err) {
             toast.error(err.response?.data?.message || 'Failed to save UPI ID.');
+            setLoading(false);
         }
-        setLoading(false);
     };
+
+    const handleSkip = () => navigate('/dashboard', { replace: true });
 
     return (
         <div className="upi-setup-page">
@@ -34,7 +49,15 @@ const UpiSetup = () => {
                     <div className="upi-setup-icon">
                         <FiCreditCard size={28} />
                     </div>
-                    <h1>Set Up Payment Collection</h1>
+
+                    {onboarding && (
+                        <div className="upi-onboarding-note" role="status">
+                            <FiInfo size={16} />
+                            <span>Welcome! Set your UPI ID first — this step is asked only once.</span>
+                        </div>
+                    )}
+
+                    <h1>{onboarding ? 'Set Up Your UPI ID First' : 'Set Up Payment Collection'}</h1>
                     <p className="upi-setup-desc">
                         To collect payments from ticket buyers, you need to provide your UPI ID.
                         Attendees will scan a QR code or pay directly to this UPI ID when booking paid tickets.
@@ -69,6 +92,18 @@ const UpiSetup = () => {
                             {loading ? 'Saving...' : 'Save UPI ID and Continue'}
                             {!loading && <FiArrowRight size={16} />}
                         </button>
+
+                        {onboarding && (
+                            <button
+                                type="button"
+                                className="btn btn-secondary btn-lg w-full"
+                                style={{ marginTop: '0.75rem' }}
+                                onClick={handleSkip}
+                                disabled={loading}
+                            >
+                                Skip for now
+                            </button>
+                        )}
                     </form>
 
                     <p style={{ textAlign: 'center', marginTop: '1.25rem', fontSize: '0.85rem', color: 'var(--text-3)' }}>

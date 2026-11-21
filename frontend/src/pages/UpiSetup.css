@@ -32,6 +32,25 @@
     margin-bottom: 0.75rem;
 }
 
+.upi-onboarding-note {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: 0.5rem;
+    background: rgba(108, 99, 255, 0.1);
+    border: 1px solid rgba(108, 99, 255, 0.28);
+    color: var(--primary-light);
+    border-radius: var(--r-lg);
+    padding: 0.65rem 0.9rem;
+    font-size: 0.84rem;
+    line-height: 1.5;
+    margin-bottom: 1.25rem;
+}
+
+.upi-onboarding-note svg {
+    flex-shrink: 0;
+}
+
 .upi-setup-desc {
     color: var(--text-2);
     font-size: 0.9rem;

@@ -26,6 +26,9 @@ const Register = () => {
     const [showPass, setShowPass] = useState(false);
     const [loading, setLoading] = useState(false);
     const [error, setError] = useState('');
+    // Set right before navigating away so the signed-in redirect below does not
+    // send the brand-new account somewhere other than the UPI step.
+    const [justRegistered, setJustRegistered] = useState(false);
     const [touched, setTouched] = useState({});
     const [form, setForm] = useState({
         name: '', email: '', phone: '', password: '', confirmPassword: '',
@@ -72,7 +75,7 @@ const Register = () => {
         setError('');
         setLoading(true);
         try {
-            const user = await register({
+            await register({
                 name: form.name.trim(),
                 email: form.email.trim().toLowerCase(),
                 phone: form.phone.trim(),
@@ -82,9 +85,9 @@ const Register = () => {
                 organizationType: accountType === 'organization' ? form.organizationType : '',
             });
 
-            // Organizers must add a UPI ID before they can sell paid tickets.
-            if (user.role === 'organizer') navigate('/profile/upi-setup', { replace: true });
-            else navigate(redirectTo || '/', { replace: true });
+            // Every new account is asked to set its UPI ID once, right away.
+            setJustRegistered(true);
+            navigate('/profile/upi-setup', { replace: true });
         } catch (err) {
             setError(
                 err.response?.data?.message
@@ -94,7 +97,7 @@ const Register = () => {
         }
     };
 
-    if (isAuth) return <Navigate to={user?.role === 'organizer' ? '/profile/upi-setup' : redirectTo || '/'} replace />;
+    if (isAuth && !justRegistered) return <Navigate to={user?.role === 'organizer' ? '/profile/upi-setup' : redirectTo || '/'} replace />;
 
     return (
         <div className="auth-page">
