@@ -14,7 +14,16 @@
 .venue-hero-bg {
     position: absolute;
     inset: 0;
+    z-index: 0;
+    /* Decorative only — keeps the layer from capturing clicks meant for the
+       back link and hero controls. */
+    pointer-events: none;
     background: linear-gradient(135deg, rgba(108, 99, 255, 0.12), rgba(255, 107, 107, 0.06));
+}
+
+.venue-hero > .container {
+    position: relative;
+    z-index: 1;
 }
 
 /* Cover photo behind the hero, dimmed so the title stays readable. */

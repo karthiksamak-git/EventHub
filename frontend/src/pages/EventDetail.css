@@ -11,6 +11,15 @@
 .event-hero-bg {
     position: absolute;
     inset: 0;
+    z-index: 0;
+    /* Decorative only — without this the layer sits over the back link and
+       swallows its clicks. */
+    pointer-events: none;
+}
+
+.event-hero .container {
+    position: relative;
+    z-index: 1;
 }
 
 .event-hero-content {
@@ -30,6 +39,7 @@
     font-size: 0.875rem;
     margin-bottom: 1.5rem;
     transition: var(--t);
+    cursor: pointer;
 }
 
 .back-btn:hover {
